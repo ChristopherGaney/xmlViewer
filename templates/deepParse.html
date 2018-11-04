@@ -1,0 +1,50 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>IndDex</title>
+  <meta name="description" content="XML output">
+  <meta name="author" content="CharlesCode">
+
+  <script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/style.css">
+  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
+  
+
+</head>
+
+<body>
+    <h1 class="go_heading">My News</h1>
+   <div class="content">
+
+     <table id="fancytable" class="display">
+            <col width="35%">
+            <col width="65%">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Keywords</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ range $key, $value := . }}
+                 <tr>
+                    <td><a href="{{ $value.Location }}" target='_blank'>{{ $key }}</td>
+                    <td>{{ $value.Keyword }}</td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>  
+    </div> 
+
+
+    <script>$(document).ready(function() {
+        $('#fancytable').DataTable();
+        } );
+    </script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
