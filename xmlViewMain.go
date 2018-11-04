@@ -8,9 +8,7 @@ import (
 	"net/http"
 	"time"
     "html/template"
-    "io/ioutil"
     "io"
-    "encoding/xml"
     "encoding/json"
     "sync"
     "github.com/gorilla/mux"
@@ -93,7 +91,7 @@ func test_handler(w http.ResponseWriter, r *http.Request) {
     tmp.ExecuteTemplate(w, "test.html", "Testing the Template" )
 }
 
-type Urlindex struct {
+/*type Urlindex struct {
 	Titles []string `xml:"url>news>title"`
 	Keywords []string `xml:"url>news>keywords"`
 	Locations []string `xml:"url>loc"`
@@ -122,7 +120,7 @@ func newsRoutine(c chan News, Location string){
     xml.Unmarshal(bytes, &n)
     resp.Body.Close()
     c <- n
-}
+}*/
 
 func ajaxResponse(w http.ResponseWriter, res map[string]string) {
   // set the proper headerfor application/json
@@ -140,7 +138,7 @@ func apiFunc(w http.ResponseWriter, r *http.Request) {
   ajaxResponse(w, map[string]string{"data": deployKey})
 }
 
-func parse_handler(w http.ResponseWriter, r *http.Request) {
+/*func parse_handler(w http.ResponseWriter, r *http.Request) {
     var s Urlindex
 	resp, _ := http.Get("https://www.washingtonpost.com/news-business-sitemap.xml")
 	bytes, _ := ioutil.ReadAll(resp.Body)
@@ -150,11 +148,7 @@ func parse_handler(w http.ResponseWriter, r *http.Request) {
     for idx, _ := range s.Locations {
 			news_map[s.Titles[idx]] = NewsMap{s.Keywords[idx], s.Locations[idx]}
 		}
-    /*for idx, data := range news_map {
-		fmt.Println("\n\n\n",idx)
-		fmt.Println("\n",data.Keyword)
-		fmt.Println("\n",data.Location)
-	}*/
+    
     tmp.ExecuteTemplate(w, "deepParse.html", news_map)
 }
 
@@ -186,7 +180,7 @@ func deep_handler(w http.ResponseWriter, r *http.Request) {
    // t, _ := template.ParseFiles("templates/newsaggtemplate.html")
    // t.Execute(w, p)
     tmp.ExecuteTemplate(w, "deepParse.html", news_map)
-}
+}*/
 
 func StaticHandler(w http.ResponseWriter, req *http.Request) {
     static_file := req.URL.Path[len(STATIC_URL):]
@@ -211,8 +205,8 @@ func main() {
     r.PathPrefix("/static/").Handler(Chain(StaticHandler, Logging()))
     r.HandleFunc("/", Chain(index_handler, Logging()))
     r.HandleFunc("/poster/{deployKey}", Chain(apiFunc, Logging())).Methods("POST")
-    r.HandleFunc("/parse", Chain(parse_handler, Logging()))
-    r.HandleFunc("/deep", Chain(deep_handler, Logging()))
+    r.HandleFunc("/parse", Chain(Parse_handler, Logging()))
+    r.HandleFunc("/deep", Chain(Deep_handler, Logging()))
     r.HandleFunc("/test", Chain(test_handler, Logging()))
 
 	http.ListenAndServe(":8080", handlers.CORS(handlers.AllowedMethods(methods), handlers.AllowedHeaders(headers), corsObj)(r))
