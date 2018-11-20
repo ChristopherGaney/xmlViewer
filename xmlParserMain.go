@@ -4,6 +4,7 @@ import (
 	"net/http"
     "io/ioutil"
     "encoding/xml"
+    "log"
 )
 
 type Sitemapindex struct {
@@ -49,7 +50,11 @@ func Parse_handler(w http.ResponseWriter, r *http.Request) {
 			news_map[s.Titles[idx]] = NewsMap{s.Keywords[idx], s.Locations[idx]}
 		}
     
-    tmp.ExecuteTemplate(w, "deepParse.html", news_map)
+    err := tmp.ExecuteTemplate(w, "deepParse.html", news_map)
+     if err != nil { 
+    log.Println("parse_handler, ExecuteTemplate Error:") 
+    log.Println(err) 
+    }
 }
 
 func Deep_handler(w http.ResponseWriter, r *http.Request) {
@@ -79,5 +84,9 @@ func Deep_handler(w http.ResponseWriter, r *http.Request) {
 
    // t, _ := template.ParseFiles("templates/newsaggtemplate.html")
    // t.Execute(w, p)
-    tmp.ExecuteTemplate(w, "deepParse.html", news_map)
+    err := tmp.ExecuteTemplate(w, "deepParse.html", news_map)
+     if err != nil { 
+    log.Println("deep_handler, ExecuteTemplate Error:") 
+    log.Println(err) 
+    }
 }

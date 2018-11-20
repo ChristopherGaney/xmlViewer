@@ -1,11 +1,28 @@
-.go_heading {
-    text-align: center;
+
+header {
     width: 100%;
-    color: green;
-}
-.content {
     
+}
+.top_left {
+   
+}
+.top_right {
+   
+    text-align: center;
+    vertical-align: top;
+
+}
+.go_heading {
+    text-align: left;
+    color: #295C6E;
 }
 p {
+    text-align: left;
     
+}
+.top_dash {
+    margin: 2rem 0 3rem 0;
+}
+.data_display.columns {
+    margin-left: 0;
 }

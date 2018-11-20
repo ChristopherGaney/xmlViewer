@@ -1,0 +1,36 @@
+{
+  "name": "parser",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/js",
+    "compress:js": "browserify src/js/app.js | uglifyjs -c > static/js/app.min.js",
+    "build:js": "npm run compress:js",
+    "compile:js": "browserify src/js/app.js -o static/js/app.min.js",
+    "watch:js": "onchange 'src/js/**/*.js' -- npm run build:js",
+    "build:css": "node-sass --include-path scss src/scss/style.scss static/css/style.min.css --output-style compressed",
+    "watch:css": "onchange 'src/scss/**/*.scss' -- npm run build:css",
+    "go": "npm run watch:js & npm run watch:css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChristopherGaney/xmlViewer.git"
+  },
+  "devDependencies": {
+    "browserify": "^16.2.3",
+    "eslint": "^4.19.1",
+    "node-sass": "^4.11.0",
+    "onchange": "^3.3.0",
+    "uglify-js": "^3.4.9",
+    "watchify": "^3.11.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ChristopherGaney/xmlViewer/issues"
+  },
+  "homepage": "https://github.com/ChristopherGaney/xmlViewer#readme"
+}
