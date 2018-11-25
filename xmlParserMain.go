@@ -39,7 +39,7 @@ type Urlindex struct {
 	Locations []string `xml:"url>loc"`
 }
 
-func Parse_handler(w http.ResponseWriter, r *http.Request) {
+func Parse_handler(w http.ResponseWriter, r *http.Request) *appError {
     var s Urlindex
 	resp, _ := http.Get("https://www.washingtonpost.com/news-business-sitemap.xml")
 	bytes, _ := ioutil.ReadAll(resp.Body)
@@ -51,13 +51,14 @@ func Parse_handler(w http.ResponseWriter, r *http.Request) {
 		}
     
     err := tmp.ExecuteTemplate(w, "deepParse.html", news_map)
-     if err != nil { 
-    log.Println("parse_handler, ExecuteTemplate Error:") 
-    log.Println(err) 
-    }
+      if err != nil {
+        log.Println("Parse_handler Error")
+        return &appError{err, "template not found", 500}
+      } 
+    return nil
 }
 
-func Deep_handler(w http.ResponseWriter, r *http.Request) {
+func Deep_handler(w http.ResponseWriter, r *http.Request) *appError {
 
      var s Sitemapindex
     resp, _ := http.Get("https://www.washingtonpost.com/news-sitemap-index.xml")
@@ -85,8 +86,9 @@ func Deep_handler(w http.ResponseWriter, r *http.Request) {
    // t, _ := template.ParseFiles("templates/newsaggtemplate.html")
    // t.Execute(w, p)
     err := tmp.ExecuteTemplate(w, "deepParse.html", news_map)
-     if err != nil { 
-    log.Println("deep_handler, ExecuteTemplate Error:") 
-    log.Println(err) 
-    }
+      if err != nil {
+        log.Println("Deep_handler Error")
+        return &appError{err, "template not found", 500}
+      } 
+    return nil
 }
