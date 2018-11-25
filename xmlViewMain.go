@@ -3,7 +3,6 @@
 package main
 
 import (
-	//"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -13,7 +12,6 @@ import (
     "sync"
     "github.com/gorilla/mux"
     "github.com/gorilla/handlers"
-    //"github.com/pkg/errors"
 )
 
 const STATIC_URL string = "/static/"
@@ -34,10 +32,20 @@ type appError struct {
     Code    int
 }
 
-type appHandler func(http.ResponseWriter, *http.Request) *appError
+type resourceHandler func(http.ResponseWriter, *http.Request) *appError
 
-func (fn appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-    if e := fn(w, r); e != nil { // e is *appError, not os.Error.
+func (fn resourceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+    if e := fn(w, r); e != nil { 
+        log.Println(e.Error)
+        log.Println(e.Message, e.Code)
+        http.Error(w, e.Message, e.Code)
+    }
+}
+
+type templateHandler func(http.ResponseWriter, *http.Request) *appError
+
+func (fn templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+    if e := fn(w, r); e != nil { 
        
         log.Println(e.Error)
         log.Println(e.Message, e.Code)
@@ -94,43 +102,36 @@ func test_handler(w http.ResponseWriter, r *http.Request) *appError {
     return nil
 }
 
-
-func ajaxResponse(w http.ResponseWriter, res map[string]string) {
-  // set the proper headerfor application/json
-  w.Header().Set("Content-Type", "application/json")             
-  // encode your response into json and write it to w
-  err := json.NewEncoder(w).Encode(res)                          
-  if err != nil { 
-    log.Println("Ajax Response, logging json Encoder Error:") 
-    log.Println(err)                                             
-  }                                                              
-}
-
-func apiFunc(w http.ResponseWriter, r *http.Request) {
-   vars := mux.Vars(r)
+func api_handler(w http.ResponseWriter, r *http.Request) *appError {
+    vars := mux.Vars(r)
     deployKey := vars["deployKey"]
-  ajaxResponse(w, map[string]string{"data": deployKey})
+    //ajaxResponse(w, map[string]string{"data": deployKey})
+    w.Header().Set("Content-Type", "application/json")             
+    err := json.NewEncoder(w).Encode(map[string]string{"data": deployKey})                          
+    if err != nil {
+        log.Println("api_handler Error")
+        return &appError{err, "resource not found", 500}
+      } 
+    return nil
 }
 
-func StaticHandler(w http.ResponseWriter, req *http.Request) {
+func StaticHandler(w http.ResponseWriter, req *http.Request) *appError {
     static_file := req.URL.Path[len(STATIC_URL):]
     if len(static_file) != 0 {
         f, err := http.Dir(STATIC_ROOT).Open(static_file)
         if err == nil {
             content := io.ReadSeeker(f)
             http.ServeContent(w, req, static_file, time.Now(), content)
-            return
+            return nil
         }
         if err != nil {
-            log.Println("Logging Static Error:") 
-            log.Println(err)
-            return
-        }
+            log.Println("staticHandler Error")
+            return &appError{err, "resource not found", 500}
+          } 
     }
     http.NotFound(w, req)
+    return nil
 }
-
-
 
 func main() {
 
@@ -139,13 +140,13 @@ func main() {
     methods := []string{"GET", "POST", "PUT", "DELETE"}
     headers := []string{"Content-Type"}
     r := mux.NewRouter()
-    r.PathPrefix("/static/").Handler(logging(http.HandlerFunc(StaticHandler)))
-    r.Handle("/", logging(appHandler(index_handler)))
-    r.Handle("/scraper", logging(appHandler(app_handler)))
-    r.Handle("/poster/{deployKey}", logging(http.HandlerFunc(apiFunc))).Methods("POST")
-    r.Handle("/parse", logging(appHandler(Parse_handler)))
-    r.Handle("/deep", logging(appHandler(Deep_handler)))
-    r.Handle("/test", logging(appHandler(test_handler)))
+    r.PathPrefix("/static/").Handler(logging(resourceHandler(StaticHandler)))
+    r.Handle("/", logging(templateHandler(index_handler)))
+    r.Handle("/scraper", logging(templateHandler(app_handler)))
+    r.Handle("/poster/{deployKey}", logging(resourceHandler(api_handler))).Methods("POST")
+    r.Handle("/parse", logging(templateHandler(Parse_handler)))
+    r.Handle("/deep", logging(templateHandler(Deep_handler)))
+    r.Handle("/test", logging(templateHandler(test_handler)))
     //http.HandlerFunc
 
 	http.ListenAndServe(":8080", handlers.CORS(handlers.AllowedMethods(methods), handlers.AllowedHeaders(headers), corsObj)(r))

@@ -82,7 +82,6 @@ func Deep_handler(w http.ResponseWriter, r *http.Request) *appError {
     }
 
     //p := NewsAggPage{Title: "Amazing News Aggregator", News: news_map}
-
    // t, _ := template.ParseFiles("templates/newsaggtemplate.html")
    // t.Execute(w, p)
     err := tmp.ExecuteTemplate(w, "deepParse.html", news_map)
