@@ -2,11 +2,11 @@ var app = (function() {
 
    $(document).ready(function() {
         console.log('app js here\ndocument ready!');
-    
-    axios.post('/poster/rockOutYo', {
-        firstName: 'Fred',
-        lastName: 'Flintstone'
-      })
+    var dt = JSON.stringify({
+        "firstName": 'Fred',
+        "lastName": 'Flintstone'
+      });
+    axios.post('/poster/rockOutYo', dt)
       .then(function (response) {
         console.log("here is response:");
         console.log(response);

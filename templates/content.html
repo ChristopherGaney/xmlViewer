@@ -1,0 +1,91 @@
+{{define "content"}}
+<div class="content">
+    
+    <div class="row main">
+        <div class="side_dash three columns">
+            <form id="resource-method" name="sidebar-methods">
+                <div id="submit-btn" class="resource">
+                    <div class="submit_wrap">
+                        <input type="submit" id="method-submit" name="submit" />
+                    </div>
+                </div>
+                <div id="resource-type" class="resource">
+                    <h3>Resource</h3>
+                    <div class="rsource_wrap">
+                        <div class="rsource">
+                            <label for="xml_typ">XML</label>
+                            <input type="radio" id="xml_typ" name="rsource_typ" />
+                        </div>
+                        <div class="rsource">
+                            <label for="http_typ">HTTP</label>
+                            <input type="radio" id="http_typ" name="rsource_typ" />
+                        </div>
+                    </div>
+                </div>
+                <div id="xml-method-type" class="resource">
+                    <h3>Method</h3>
+                    <div class="rsource_wrap">
+                        <div class="rsource">
+                            <label for="raw_xml">raw xml</label>
+                            <input type="radio" id="raw_xml" name="method_typ" />
+                        </div>
+                        <div class="rsource">
+                            <label for="flat_xml">flat xml</label>
+                            <input type="radio" id="flat_xml" name="method_typ" />
+                        </div>
+                        <div class="rsource">
+                            <label for="deep_xml">deep xml</label>
+                            <input type="radio" id="deep_xml" name="method_typ" />
+                        </div>
+                    </div>
+                </div>
+                <div id="http-method-type" class="resource">
+                    <h3>Method</h3>
+                    <div class="rsource_wrap">
+                        <div class="rsource">
+                            <label for="raw_http">raw http</label>
+                            <input type="radio" id="raw_http" name="method_typ" />
+                        </div>
+                        <div class="rsource">
+                            <label for="flat_http">flat http</label>
+                            <input type="radio" id="flat_http" name="method_typ" />
+                        </div>
+                        <div class="rsource">
+                            <label for="deep_http">deep http</label>
+                            <input type="radio" id="deep_http" name="method_typ" />
+                        </div>
+                    </div>
+                </div>
+                
+            </form>
+        </div>
+    
+        
+        <div class="data_display nine columns">
+            <div class="table_wrap">
+                <table id="fancytable" class="display">
+                    <col width="35%">
+                    <col width="65%">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Keywords</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                         <tr>
+                            <td>This is Only a test.</td>
+                            <td>Stay Very Calm</td>
+                        </tr>
+                        <tr>
+                            <td>Coffee</td>
+                            <td>Bear's Claw</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div> 
+{{end}}

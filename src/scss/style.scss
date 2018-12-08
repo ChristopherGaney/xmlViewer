@@ -1,25 +1,95 @@
+$header-blue: #295C6E;
+$body-blue: #57A7C2;
+$background: #e3e3e3;
+body {
+    font-family: arial;
+}
+.container {
+     background: $background;
+}
 header {
     width: 100%;
+    h1 {
+       margin: 1rem 0 0 1rem;
+    }
+    .go_heading {
+        text-align: left;
+        color: $header-blue;
+        font-size: 2.3rem;
+        font-weight: bold;
+        padding: 1rem;
+    }
+    p {
+        text-align: left;
+    }
+    .top_right {
+        padding: 3rem 1rem 1rem 2rem;
+
+        .url_inp {
+            min-width: 60%;
+            margin-right: 2rem; 
+        }
+    }
+}
+
+.main {
+    padding-bottom: 8rem;
+    padding: 2 1.5rem;
     
-}
-.top_left {
-   
-}
-.top_right {
-   
-    text-align: center;
-    vertical-align: top;
-}
-.go_heading {
-    text-align: left;
-    color: #295C6E;
-}
-p {
-    text-align: left;
-}
-.top_dash {
-    margin: 2rem 0 3rem 0;
-}
-.data_display.columns {
-    margin-left: 0;
+    .columns {
+        padding: 1rem;
+    }
+    .side_dash {
+        padding: 1.5rem 0rem 1rem 2.5rem;
+       h3 {
+            font-size: 1.8rem;
+            margin-bottom: .8rem;
+        }
+        .rsource_wrap {
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+             background: #fff;
+            border: 1px solid #fff;
+            border-radius: .3rem;
+            margin-bottom: 3rem;
+            padding: .5rem 1rem 0rem 1.5rem;
+
+            &:after {
+                content: '';
+                display: table;
+                clear: both;
+            }
+            .rsource {
+                width: 50%;
+                display: inline-block;
+                float: left;
+               text-align: left;
+                label {
+                   
+                }
+                
+            }
+        }
+        .submit_wrap {
+            width: 100%;
+            text-align: center;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+    }
+    .data_display {
+        padding: 1.8rem 2.5rem 2rem 0;
+        margin-top: 1rem;
+         height: 100%;
+        .table_wrap {
+            border: 8px solid #757E82;
+            padding: 2.5rem;
+            background: #fff;
+            min-height: 500px;
+            .display {
+               
+            }
+        }
+    }
 }

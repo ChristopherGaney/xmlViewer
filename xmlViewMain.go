@@ -8,6 +8,7 @@ import (
 	"time"
     "html/template"
     "io"
+    "io/ioutil"
     "encoding/json"
     "sync"
     "github.com/gorilla/mux"
@@ -65,7 +66,7 @@ func (fn templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func logging(next http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
     start := time.Now()
-    log.Println("Logging begin: ", start.Format(time.RFC3339))
+    log.Println("Logging begin: ", r.URL.Path, start.Format(time.RFC3339))
 
     defer func() { 
         log.Println("Defer Out:")
@@ -86,7 +87,7 @@ func index_handler(w http.ResponseWriter, r *http.Request) *appError {
 }
 
 func app_handler(w http.ResponseWriter, r *http.Request) *appError {
-   err := tmp.ExecuteTemplate(w, "app.html", "Building the Template:" )
+   err := tmp.ExecuteTemplate(w, "appbase", "Building the Template:" )
     if err != nil {
         log.Println("app_handler Error")
         return &appError{err, "template not found", 500}
@@ -102,15 +103,36 @@ func test_handler(w http.ResponseWriter, r *http.Request) *appError {
     return nil
 }
 
+
+
 func api_handler(w http.ResponseWriter, r *http.Request) *appError {
-    vars := mux.Vars(r)
-    deployKey := vars["deployKey"]
-    //ajaxResponse(w, map[string]string{"data": deployKey})
-    w.Header().Set("Content-Type", "application/json")             
-    err := json.NewEncoder(w).Encode(map[string]string{"data": deployKey})                          
-    if err != nil {
+  // vars := mux.Vars(r)
+   //deployKey := vars["deployKey"]
+    jsonMap := map[string]string{}
+
+   
+    b, m := ioutil.ReadAll(r.Body)
+    defer r.Body.Close()
+    if m != nil {
         log.Println("api_handler Error")
-        return &appError{err, "resource not found", 500}
+        return &appError{m, "resource not found", 500}
+      } 
+     
+   
+	m = json.Unmarshal(b, &jsonMap)
+	if m != nil {
+        log.Println("api_handler Error")
+        return &appError{m, "resource not found", 500}
+      } 
+	log.Println(jsonMap)
+    w.Header().Set("Content-Type", "application/json")
+           
+    //s := json.NewEncoder(w).Encode(map[string]string{"more": "more data here"}) 
+    s := json.NewEncoder(w).Encode(jsonMap) 
+   
+    if s != nil {
+        log.Println("api_handler Error")
+        return &appError{s, "resource not found", 500}
       } 
     return nil
 }
