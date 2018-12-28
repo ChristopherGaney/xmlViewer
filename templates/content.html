@@ -14,45 +14,45 @@
                     <div class="rsource_wrap">
                         <div class="rsource">
                             <label for="xml_typ">XML</label>
-                            <input type="radio" id="xml_typ" name="rsource_typ" />
+                            <input type="radio" id="xml_typ" name="rsource_typ" value="xml" autocomplete="off" />
                         </div>
                         <div class="rsource">
                             <label for="http_typ">HTTP</label>
-                            <input type="radio" id="http_typ" name="rsource_typ" />
+                            <input type="radio" id="http_typ" name="rsource_typ" value="http" autocomplete="off" />
                         </div>
                     </div>
                 </div>
-                <div id="xml-method-type" class="resource">
+                <div id="xml-method-type" class="resource resource-method">
                     <h3>Method</h3>
                     <div class="rsource_wrap">
                         <div class="rsource">
                             <label for="raw_xml">raw xml</label>
-                            <input type="radio" id="raw_xml" name="method_typ" />
+                            <input type="radio" id="raw_xml" name="xml_typ" value="raw-xml" autocomplete="off" />
                         </div>
                         <div class="rsource">
                             <label for="flat_xml">flat xml</label>
-                            <input type="radio" id="flat_xml" name="method_typ" />
+                            <input type="radio" id="flat_xml" name="xml_typ" value="flat-xml" autocomplete="off" />
                         </div>
                         <div class="rsource">
                             <label for="deep_xml">deep xml</label>
-                            <input type="radio" id="deep_xml" name="method_typ" />
+                            <input type="radio" id="deep_xml" name="xml_typ" value="deep-xml" autocomplete="off" />
                         </div>
                     </div>
                 </div>
-                <div id="http-method-type" class="resource">
+                <div id="http-method-type" class="resource resource-method">
                     <h3>Method</h3>
                     <div class="rsource_wrap">
                         <div class="rsource">
                             <label for="raw_http">raw http</label>
-                            <input type="radio" id="raw_http" name="method_typ" />
+                            <input type="radio" id="raw_http" name="http_typ" value="raw-http" autocomplete="off" />
                         </div>
                         <div class="rsource">
                             <label for="flat_http">flat http</label>
-                            <input type="radio" id="flat_http" name="method_typ" />
+                            <input type="radio" id="flat_http" name="http_typ" value="flat-http" autocomplete="off" />
                         </div>
                         <div class="rsource">
                             <label for="deep_http">deep http</label>
-                            <input type="radio" id="deep_http" name="method_typ" />
+                            <input type="radio" id="deep_http" name="http_typ" value="deep-http" autocomplete="off" />
                         </div>
                     </div>
                 </div>
@@ -62,28 +62,8 @@
     
         
         <div class="data_display nine columns">
-            <div class="table_wrap">
-                <table id="fancytable" class="display">
-                    <col width="35%">
-                    <col width="65%">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Keywords</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-                         <tr>
-                            <td>This is Only a test.</td>
-                            <td>Stay Very Calm</td>
-                        </tr>
-                        <tr>
-                            <td>Coffee</td>
-                            <td>Bear's Claw</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div id="display_tb" class="table_wrap">
+
             </div>
         </div>
     </div>

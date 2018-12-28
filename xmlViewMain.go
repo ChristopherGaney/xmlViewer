@@ -110,9 +110,9 @@ func api_handler(w http.ResponseWriter, r *http.Request) *appError {
    //deployKey := vars["deployKey"]
     jsonMap := map[string]string{}
 
-   
     b, m := ioutil.ReadAll(r.Body)
     defer r.Body.Close()
+
     if m != nil {
         log.Println("api_handler Error")
         return &appError{m, "resource not found", 500}
@@ -123,8 +123,10 @@ func api_handler(w http.ResponseWriter, r *http.Request) *appError {
 	if m != nil {
         log.Println("api_handler Error")
         return &appError{m, "resource not found", 500}
-      } 
+      }
+ 
 	log.Println(jsonMap)
+
     w.Header().Set("Content-Type", "application/json")
            
     //s := json.NewEncoder(w).Encode(map[string]string{"more": "more data here"}) 
