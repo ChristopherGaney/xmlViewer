@@ -1,16 +1,42 @@
 var ajax = (function() {
 
+
    $(document).ready(function() {
         var params;
         
         var sendParseRequest = function(t, cb) {
-             var dt = JSON.stringify(t);
-            axios.post('/poster/dats', dt)
+            var dt = JSON.stringify(t);
+            axios.post('/poster', dt)
               .then(cb)
               .catch(function (error) {
                 console.log(error);
               });
         };
+        var displayXML = function(result) {
+            var display = $('#display_tb');
+            var items = '';
+            
+            if(params.method === "flat-xml" || params.method === "deep-xml") {
+                items += '<table id="fancytable" class="display"><col width="35%"><col width="65%">' +
+                        '<thead><tr><th>Title</th><th>Keywords</th></tr></thead><tbody>';
+
+                $.each(result, function(i,v) {
+                        items += '<tr><td><a href="' + v.Location + '" target="_blank">' + v.Title + '</a></td><td>' + v.Keyword + '</td></tr>';
+                });
+
+                items += '</tbody></table>';
+
+                
+            }
+            else if(params.method === "raw-xml") {
+                console.dir(result[0]);
+               items += '<textarea style="width: 100%; min-height: 500px;">' + result[0] + '</textarea>';
+            }
+            display.html(items);
+        }
+        var displayHTML = function(result) {
+
+        }
         var makeRequest = function(u,t,m) {
              params = {
                 "url": u,
@@ -18,15 +44,15 @@ var ajax = (function() {
                 "method": m
               };
             sendParseRequest(params, function (response) {
-                var display = $('#display_tb');
-                 var items = '';
-                var res;
+                var res = response.data;
                 console.log("here is response from cb:");
-               
-                res = response.data;
-                items += 'url: ' + res.url + ' <br>type: ' + res.type + '<br>method: ' + res.method;
-                 
-                display.html(items);
+
+                if(params.type === 'xml') {
+                    displayXML(res);
+                }
+                else {
+                    displayHTML(res);
+                }
             });
         };
 

@@ -103,27 +103,11 @@ func test_handler(w http.ResponseWriter, r *http.Request) *appError {
     return nil
 }
 
-func ajaxResponse(w http.ResponseWriter, res map[string]string) *appError {
-  
-  w.Header().Set("Content-Type", "application/json")             
-  
-  err := json.NewEncoder(w).Encode(res)                          
-  if err != nil { 
-    log.Println("api_handler Error")
-    return &appError{err, "resource not found", 500}                                         
-  }
-    return nil
-}
-
-/*func apiFunc(w http.ResponseWriter, r *http.Request) {
-   vars := mux.Vars(r)
-    deployKey := vars["deployKey"]
-  ajaxResponse(w, map[string]string{"data": deployKey})
-}*/
 
 
 func api_handler(w http.ResponseWriter, r *http.Request) *appError {
-  
+  // vars := mux.Vars(r)
+   //deployKey := vars["deployKey"]
     jsonMap := map[string]string{}
 
     b, m := ioutil.ReadAll(r.Body)
@@ -142,20 +126,16 @@ func api_handler(w http.ResponseWriter, r *http.Request) *appError {
       }
  
 	log.Println(jsonMap)
-    if jsonMap["type"] == "xml" {
-        method := jsonMap["method"]
-        if method == "flat-xml" {
-            log.Println("method: flat-xml method")
-            flat_xml_handler(w, jsonMap)
-        } else if method == "deep-xml" {
-            log.Println("method: deep-xml method")
-            deep_xml_handler(w, jsonMap)
-        } else {
-            log.Println("method: raw-xml method")
-            raw_xml_handler(w, jsonMap)
-        }
-    }
+
+    w.Header().Set("Content-Type", "application/json")
+           
+    //s := json.NewEncoder(w).Encode(map[string]string{"more": "more data here"}) 
+    s := json.NewEncoder(w).Encode(jsonMap) 
    
+    if s != nil {
+        log.Println("api_handler Error")
+        return &appError{s, "resource not found", 500}
+      } 
     return nil
 }
 

@@ -91,7 +91,16 @@ header {
             background: #fff;
             min-height: 500px;
             .display {
-               
+               a {
+                    color: $header-blue;
+                    &:hover {
+                        color: gray;
+                    }
+                }
+            }
+            textarea {
+                width: 100%;
+                min-height: 500px;
             }
         }
     }
