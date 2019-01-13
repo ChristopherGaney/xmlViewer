@@ -13,6 +13,7 @@ const (
   password = "parset"
   dbname   = "parserdata"
 )
+
 var DB *sql.DB
 
 func InitDB() {
