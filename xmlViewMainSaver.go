@@ -13,13 +13,11 @@ import (
     "sync"
     "github.com/gorilla/mux"
     "github.com/gorilla/handlers"
-    "./config"
 )
 
 const STATIC_URL string = "/static/"
 const STATIC_ROOT string = "static/"
 const LISTEN_ADDRESS string = ":8080"
-
 
 var tmp *template.Template
 
@@ -182,8 +180,6 @@ func StaticHandler(w http.ResponseWriter, req *http.Request) *appError {
 func main() {
 
     log.Println("Server is starting...")
-    config.InitDB()
-    log.Println("Successfully connected!")
     corsObj:=handlers.AllowedOrigins([]string{"*"})
     methods := []string{"GET", "POST", "PUT", "DELETE"}
     headers := []string{"Content-Type"}

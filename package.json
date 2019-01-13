@@ -12,7 +12,7 @@
     "watch:js": "onchange 'src/js/**/*.js' -- npm run build:js",
     "build:css": "node-sass --include-path scss src/scss/style.scss static/css/style.min.css --output-style compressed",
     "watch:css": "onchange 'src/scss/**/*.scss' -- npm run build:css",
-    "go": "npm run watch:js & npm run watch:css"
+    "observe": "npm run watch:js & npm run watch:css"
   },
   "repository": {
     "type": "git",
@@ -22,6 +22,7 @@
     "browserify": "^16.2.3",
     "eslint": "^4.19.1",
     "node-sass": "^4.11.0",
+    "nodejs": "0.0.0",
     "onchange": "^3.3.0",
     "uglify-js": "^3.4.9",
     "watchify": "^3.11.0"
