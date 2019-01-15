@@ -7,12 +7,34 @@
             </div>
             <div class="top_right nine columns">
                 <input id="inp_url" class="url_inp" type="text" autocomplete="off" /><!--<input class="url_sub" type="submit" />-->
-                <div class="add-btn">
-                    <button id="add-target">Add</button>
+                <div class="top-rt-btns">
+                    <div class="list-btn">
+                        <button id="show-list">ShowList</button>
+                    </div>
+                    <div class="add-btn">
+                        <a href="#ex1" data-modal>
+                            <button id="edit-target">Editor</button>
+                        </a>
+                    </div>
                 </div>
-                <div class="list-btn">
-                    <button id="show-list">ShowList</button>
+            </div>
+            <div id="ex1" class="modal">
+              <form id="new-item-form" name="item-adder">
+                <label for="i_name">Name</label>
+                <input type="text" id="i_name" name="item-name" autocomplete="off" />
+                <label for="i_url">Url</label>
+                <input type="text" id="i_url" name="item-url" autocomplete="off" />
+                <label for="i_type">Type</label>
+                <input type="text" id="i_type" name="item-type" autocomplete="off" />
+                <label for="i_method">Method</label>
+                <input type="text" id="i_method" name="item-method" autocomplete="off" />
+                <div class="">
+                    <div class="submit_wrap">
+                        <input type="submit" id="item-submit" name="submit-item" />
+                    </div>
                 </div>
+            </form>
+              <a href="#" rel="modal:close">Close</a>
             </div>
         </div>
     </header>

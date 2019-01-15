@@ -144,10 +144,6 @@ func raw_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
     }
     
     
-    
-	
-    
-    
     news_map := make(map[int]string)
     news_map[0] = string_body
 	

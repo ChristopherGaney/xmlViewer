@@ -24,10 +24,26 @@ header {
     }
     .top_right {
         padding: 3rem 1rem 1rem 0rem;
-
+        box-sizing: border-box;
         .url_inp {
-            min-width: 60%;
-            margin-right: 2rem; 
+            display: inline-block;
+            width: 60%;
+        }
+        .top-rt-btns {
+            display: inline-block;
+            width: 37%;
+            .add-btn,
+            .list-btn {
+                display: inline-block;
+            }
+            .add-btn,
+            .list-btn {
+                padding-left: 2rem;
+                button {
+                    padding: 0 20px;
+                    //min-width: 108px;
+                }
+            }
         }
     }
 }

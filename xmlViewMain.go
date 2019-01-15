@@ -116,13 +116,100 @@ func ajaxResponse(w http.ResponseWriter, res map[string]string) *appError {
   }
     return nil
 }
-
 /*func apiFunc(w http.ResponseWriter, r *http.Request) {
    vars := mux.Vars(r)
     deployKey := vars["deployKey"]
   ajaxResponse(w, map[string]string{"data": deployKey})
 }*/
 
+
+func adder_handler(w http.ResponseWriter, r *http.Request) *appError {
+  
+    jsonMap := map[string]string{}
+
+    b, m := ioutil.ReadAll(r.Body)
+    defer r.Body.Close()
+
+    if m != nil {
+        log.Println("list_handler Error")
+        return &appError{m, "resource not found", 500}
+      } 
+     
+   
+    m = json.Unmarshal(b, &jsonMap)
+    if m != nil {
+        log.Println("list_handler Error")
+        return &appError{m, "resource not found", 500}
+      }
+ 
+    log.Println(jsonMap)
+    
+   /*  sqlStatement := `
+        INSERT INTO media_outlets (name, url, type, method)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id`
+          id := 0
+          serr := db.QueryRow(sqlStatement, 
+                            jsonMap["name"], 
+                            jsonMap["url"],
+                            jsonMap["type"], 
+                            jsonMap["method"]).Scan(&id)
+          if serr != nil { 
+            log.Println("api_handler Error")
+            return &appError{serr, "resource not found", 500}                                         
+        }
+        log.Println("New record ID is:", id)
+
+        news_map := make(map[string]int)
+        news_map["id"] = id*/
+
+    w.Header().Set("Content-Type", "application/json")             
+  
+    err := json.NewEncoder(w).Encode(jsonMap)                          
+    if err != nil { 
+        log.Println("api_handler Error")
+        return &appError{err, "resource not found", 500}                                         
+    }
+    
+    return nil
+}
+
+func list_handler(w http.ResponseWriter, r *http.Request) *appError {
+  
+    jsonMap := map[string]string{}
+
+    b, m := ioutil.ReadAll(r.Body)
+    defer r.Body.Close()
+
+    if m != nil {
+        log.Println("list_handler Error")
+        return &appError{m, "resource not found", 500}
+      } 
+     
+   
+    m = json.Unmarshal(b, &jsonMap)
+    if m != nil {
+        log.Println("list_handler Error")
+        return &appError{m, "resource not found", 500}
+      }
+ 
+    log.Println(jsonMap)
+    if jsonMap["list"] == "true" {
+
+        news_map := make(map[string]string)
+        news_map["Name"] = "The Washington Post"
+        news_map["Url"] = "https://www.washingtonpost.com/news-business-sitemap.xml"
+
+         w.Header().Set("Content-Type", "application/json")             
+  
+          err := json.NewEncoder(w).Encode(news_map)                          
+          if err != nil { 
+            log.Println("api_handler Error")
+            return &appError{err, "resource not found", 500}                                         
+          }
+    }
+    return nil
+}
 
 func api_handler(w http.ResponseWriter, r *http.Request) *appError {
   
@@ -183,6 +270,8 @@ func main() {
 
     log.Println("Server is starting...")
     config.InitDB()
+    
+    
     log.Println("Successfully connected!")
     corsObj:=handlers.AllowedOrigins([]string{"*"})
     methods := []string{"GET", "POST", "PUT", "DELETE"}
@@ -192,6 +281,8 @@ func main() {
     r.Handle("/", logging(templateHandler(index_handler)))
     r.Handle("/scraper", logging(templateHandler(app_handler)))
     r.Handle("/poster", logging(resourceHandler(api_handler))).Methods("POST")
+    r.Handle("/lister", logging(resourceHandler(list_handler))).Methods("POST")
+    r.Handle("/adder", logging(resourceHandler(adder_handler))).Methods("POST")
     r.Handle("/parse", logging(templateHandler(Parse_handler)))
     r.Handle("/deep", logging(templateHandler(Deep_handler)))
     r.Handle("/test", logging(templateHandler(test_handler)))

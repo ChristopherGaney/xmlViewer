@@ -4,9 +4,9 @@ var ajax = (function() {
    $(document).ready(function() {
         var params;
         
-        var sendParseRequest = function(t, cb) {
+        var sendRequest = function(ext, t, cb) {
             var dt = JSON.stringify(t);
-            axios.post('/poster', dt)
+            axios.post(ext, dt)
               .then(cb)
               .catch(function (error) {
                 console.log(error);
@@ -37,15 +37,29 @@ var ajax = (function() {
         var displayHTML = function(result) {
 
         }
+        var displayList = function(result) {
+            var display = $('#display_tb');
+            var items = '';
+
+            items += '<table id="fancytable" class="display"><col width="35%"><col width="65%">' +
+                        '<thead><tr><th>Name</th><th>Url</th></tr></thead><tbody>';
+
+               // $.each(result, function(i,v) {
+                        items += '<tr><td>' + result.Name + '</td><td><a href="' + result.Url + '" target="_blank">' + result.Url + '</a></td></tr>';
+               // });
+
+                items += '</tbody></table>';
+                display.html(items);
+        }
         var makeRequest = function(u,t,m) {
              params = {
                 "url": u,
                 "type": t,
                 "method": m
               };
-            sendParseRequest(params, function (response) {
+            sendRequest('/poster', params, function (response) {
                 var res = response.data;
-                console.log("here is response from cb:");
+                //console.log("here is response from cb:");
 
                 if(params.type === 'xml') {
                     displayXML(res);
@@ -55,7 +69,36 @@ var ajax = (function() {
                 }
             });
         };
-
+        var makeListRequest = function() {
+            params = {
+                "list": "true"
+              };
+            sendRequest('/lister', params, function (response) {
+                var res = response.data;
+                //console.log("here is response from cb:");
+                //console.dir(res);
+               displayList(res);
+            
+            });
+        };
+        var addItemRequest = function(n,u,t,m) {
+            params = {
+                "name": n,
+                "url": u,
+                "type": t,
+                "method": m
+              };
+              console.log('about to send request');
+            sendRequest('/adder', params, function (response) {
+                var display = $('#display_tb');
+                var res = response.data;
+                console.log("here is response from cb:");
+                console.dir(res);
+                
+                display.text("Go says: status ok");
+            
+            });
+        };
         console.log('app js here\ndocument ready!');
 
         var handleRadios = (function() {
@@ -129,7 +172,51 @@ var ajax = (function() {
             });
             
        })();
+       var getList = (function() {
+            $('#show-list').on('click', function() {
+                makeListRequest();
+            });
+       })();
+       $('#new-item-form').submit(function(e) {
+                var name, url, type, method = '';
+                name = $('#i_name').val();
+                url = $('#i_url').val();
+                type = $('#i_type').val();
+                method = $('#i_method').val();
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                console.log("name: " + name + "url: " + url + "type: " + type + " method: " + method);
+                if(name !== '' && url !== '' && type !== '' && method !== '') {
+                    $.modal.close();
+                    addItemRequest(name, url, type, method);
 
+                }
+                else {
+                    alert('Please select all fields.');
+                    console.log('required fields empty!');
+                }
+            });
+       var addItem = (function() {
+
+            $('a[data-modal]').click(function(event) {
+                var url,type, method, name = '';
+                url = $('#inp_url').val();
+                type = $('input[name=rsource_typ]:checked').val();
+                if(type === 'xml') {
+                    name = 'xml_typ';
+                }
+                else {
+                    name = 'http_typ';
+                }
+                method = $('input[name=' + name + ']:checked').val();
+                $('#i_url').val(url);
+                $('#i_type').val(type);
+                $('#i_method').val(method);
+
+              $(this).modal();
+              return false;
+            });
+       })();
     });
 })();
 module.exports = ajax;
