@@ -13,7 +13,6 @@ import (
     "sync"
     "github.com/gorilla/mux"
     "github.com/gorilla/handlers"
-    "./config"
 )
 
 const STATIC_URL string = "/static/"
@@ -123,93 +122,6 @@ func ajaxResponse(w http.ResponseWriter, res map[string]string) *appError {
 }*/
 
 
-func adder_handler(w http.ResponseWriter, r *http.Request) *appError {
-  
-    jsonMap := map[string]string{}
-
-    b, m := ioutil.ReadAll(r.Body)
-    defer r.Body.Close()
-
-    if m != nil {
-        log.Println("list_handler Error")
-        return &appError{m, "resource not found", 500}
-      } 
-     
-   
-    m = json.Unmarshal(b, &jsonMap)
-    if m != nil {
-        log.Println("list_handler Error")
-        return &appError{m, "resource not found", 500}
-      }
- 
-    log.Println(jsonMap)
-    
-   /*  sqlStatement := `
-        INSERT INTO media_outlets (name, url, type, method)
-        VALUES ($1, $2, $3, $4)
-        RETURNING id`
-          id := 0
-          serr := db.QueryRow(sqlStatement, 
-                            jsonMap["name"], 
-                            jsonMap["url"],
-                            jsonMap["type"], 
-                            jsonMap["method"]).Scan(&id)
-          if serr != nil { 
-            log.Println("api_handler Error")
-            return &appError{serr, "resource not found", 500}                                         
-        }
-        log.Println("New record ID is:", id)
-
-        news_map := make(map[string]int)
-        news_map["id"] = id*/
-
-    w.Header().Set("Content-Type", "application/json")             
-  
-    err := json.NewEncoder(w).Encode(jsonMap)                          
-    if err != nil { 
-        log.Println("api_handler Error")
-        return &appError{err, "resource not found", 500}                                         
-    }
-    
-    return nil
-}
-
-func list_handler(w http.ResponseWriter, r *http.Request) *appError {
-  
-    jsonMap := map[string]string{}
-
-    b, m := ioutil.ReadAll(r.Body)
-    defer r.Body.Close()
-
-    if m != nil {
-        log.Println("list_handler Error")
-        return &appError{m, "resource not found", 500}
-      } 
-     
-   
-    m = json.Unmarshal(b, &jsonMap)
-    if m != nil {
-        log.Println("list_handler Error")
-        return &appError{m, "resource not found", 500}
-      }
- 
-    log.Println(jsonMap)
-    if jsonMap["list"] == "true" {
-
-        news_map := make(map[string]string)
-        news_map["Name"] = "The Washington Post"
-        news_map["Url"] = "https://www.washingtonpost.com/news-business-sitemap.xml"
-
-         w.Header().Set("Content-Type", "application/json")             
-  
-          err := json.NewEncoder(w).Encode(news_map)                          
-          if err != nil { 
-            log.Println("api_handler Error")
-            return &appError{err, "resource not found", 500}                                         
-          }
-    }
-    return nil
-}
 
 func api_handler(w http.ResponseWriter, r *http.Request) *appError {
   
@@ -269,8 +181,11 @@ func StaticHandler(w http.ResponseWriter, req *http.Request) *appError {
 func main() {
 
     log.Println("Server is starting...")
-    config.InitDB()
-    
+    InitDB()
+    err := db.Ping()
+    if err != nil {
+      panic(err)
+    }
     
     log.Println("Successfully connected!")
     corsObj:=handlers.AllowedOrigins([]string{"*"})

@@ -75,9 +75,9 @@ var ajax = (function() {
               };
             sendRequest('/lister', params, function (response) {
                 var res = response.data;
-                //console.log("here is response from cb:");
-                //console.dir(res);
-               displayList(res);
+                console.log("here is response from cb:");
+                console.dir(res);
+               //displayList(res);
             
             });
         };
@@ -99,7 +99,7 @@ var ajax = (function() {
             
             });
         };
-        console.log('app js here\ndocument ready!');
+        
 
         var handleRadios = (function() {
             var type = '';
