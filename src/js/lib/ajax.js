@@ -3,7 +3,15 @@ var ajax = (function() {
 
    $(document).ready(function() {
         var params;
-        
+        var getRequest = function(ext, cb) {
+            //var dt = JSON.stringify(t);
+            console.log(ext);
+            axios.get(ext)
+              .then(cb)
+              .catch(function (error) {
+                console.log(error);
+              });
+        };
         var sendRequest = function(ext, t, cb) {
             var dt = JSON.stringify(t);
             axios.post(ext, dt)
@@ -29,7 +37,7 @@ var ajax = (function() {
                 
             }
             else if(params.method === "raw-xml") {
-                console.dir(result[0]);
+                
                items += '<textarea style="width: 100%; min-height: 500px;">' + result[0] + '</textarea>';
             }
             display.html(items);
@@ -41,12 +49,12 @@ var ajax = (function() {
             var display = $('#display_tb');
             var items = '';
 
-            items += '<table id="fancytable" class="display"><col width="35%"><col width="65%">' +
-                        '<thead><tr><th>Name</th><th>Url</th></tr></thead><tbody>';
+            items += '<table id="fancytable" class="display"><col width="25%"><col width="45%"><col width="15%"><col width="15%">' +
+                        '<thead><tr><th>Name</th><th>Url</th><th>Type</th><th>Method</th></tr></thead><tbody>';
 
-               // $.each(result, function(i,v) {
-                        items += '<tr><td>' + result.Name + '</td><td><a href="' + result.Url + '" target="_blank">' + result.Url + '</a></td></tr>';
-               // });
+               $.each(result, function(i,v) {
+                        items += '<tr><td>' + v.Name + '</td><td><a href="' + v.Url + '" target="_blank">' + v.Url + '</a></td><td>' + v.Type + '</td><td>' + v.Method + '</td></tr>';
+                });
 
                 items += '</tbody></table>';
                 display.html(items);
@@ -59,7 +67,7 @@ var ajax = (function() {
               };
             sendRequest('/poster', params, function (response) {
                 var res = response.data;
-                //console.log("here is response from cb:");
+                console.log('returned from /poster');
 
                 if(params.type === 'xml') {
                     displayXML(res);
@@ -70,29 +78,29 @@ var ajax = (function() {
             });
         };
         var makeListRequest = function() {
-            params = {
+           /* var params = {
                 "list": "true"
-              };
-            sendRequest('/lister', params, function (response) {
+              };*/
+            var params = "?list=bigList";
+            getRequest('/lister' + params, function (response) {
                 var res = response.data;
-                console.log("here is response from cb:");
-                console.dir(res);
-               //displayList(res);
+                
+               displayList(res.Outlets);
             
             });
         };
         var addItemRequest = function(n,u,t,m) {
-            params = {
+            var params = {
                 "name": n,
                 "url": u,
                 "type": t,
                 "method": m
               };
-              console.log('about to send request');
+              
             sendRequest('/adder', params, function (response) {
                 var display = $('#display_tb');
                 var res = response.data;
-                console.log("here is response from cb:");
+                
                 console.dir(res);
                 
                 display.text("Go says: status ok");

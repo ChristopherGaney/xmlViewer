@@ -196,7 +196,7 @@ func main() {
     r.Handle("/", logging(templateHandler(index_handler)))
     r.Handle("/scraper", logging(templateHandler(app_handler)))
     r.Handle("/poster", logging(resourceHandler(api_handler))).Methods("POST")
-    r.Handle("/lister", logging(resourceHandler(list_handler))).Methods("POST")
+    r.Handle("/lister", logging(resourceHandler(list_handler))).Methods("GET")
     r.Handle("/adder", logging(resourceHandler(adder_handler))).Methods("POST")
     r.Handle("/parse", logging(templateHandler(Parse_handler)))
     r.Handle("/deep", logging(templateHandler(Deep_handler)))

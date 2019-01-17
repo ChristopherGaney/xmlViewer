@@ -74,27 +74,24 @@ func adder_handler(w http.ResponseWriter, r *http.Request) *appError {
 
 func list_handler(w http.ResponseWriter, r *http.Request) *appError {
     list := outlets{}
-    jsonMap := map[string]string{}
+    
+    keys, ok := r.URL.Query()["list"]
+    
+    if !ok || len(keys[0]) < 1 {
+        log.Println("Url Param 'key' is missing")
+        return nil
+    }
 
-    b, m := ioutil.ReadAll(r.Body)
-    defer r.Body.Close()
+    // Query()["key"] will return an array of items, 
+    // we only want the single item.
 
-    if m != nil {
-        log.Println("list_handler Error")
-        return &appError{m, "resource not found", 500}
-      } 
-     
-   
-    m = json.Unmarshal(b, &jsonMap)
-    if m != nil {
-        log.Println("list_handler Error")
-        return &appError{m, "resource not found", 500}
-      }
- 
-    log.Println(jsonMap)
-    if jsonMap["list"] == "true" {
+    key := keys[0]
 
-        rows, err := db.Query("SELECT id, name, url, type, method FROM media_outlets LIMIT $1", 1)
+    log.Println("Url Param 'key' is: " + string(key))
+      
+   if string(key) == "bigList" {
+
+        rows, err := db.Query("SELECT id, name, url, type, method FROM media_outlets") // ...outlets LIMIT $1, n) to limit
           if err != nil {
             // handle this error better than this
             panic(err)
@@ -119,7 +116,7 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
           if err != nil {
             panic(err)
           }
-
+          log.Println(list)
         /*news_map := make(map[string]string)
         news_map["Name"] = "The Washington Post"
         news_map["Url"] = "https://www.washingtonpost.com/news-business-sitemap.xml"*/
