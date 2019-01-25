@@ -12,6 +12,7 @@ var ajax = (function() {
                 console.log(error);
               });
         };
+
         var sendRequest = function(ext, t, cb) {
             var dt = JSON.stringify(t);
             axios.post(ext, dt)
@@ -20,6 +21,8 @@ var ajax = (function() {
                 console.log(error);
               });
         };
+
+       
         var displayXML = function(result) {
             var display = $('#display_tb');
             var items = '';
@@ -89,15 +92,17 @@ var ajax = (function() {
             
             });
         };
-        var addItemRequest = function(n,u,t,m) {
+
+        var addItemRequest = function(r,n,u,t,m) {
             var params = {
+                "req": r,
                 "name": n,
                 "url": u,
                 "type": t,
                 "method": m
               };
               
-            sendRequest('/adder', params, function (response) {
+            sendRequest('/items', params, function (response) {
                 var display = $('#display_tb');
                 var res = response.data;
                 
@@ -107,7 +112,22 @@ var ajax = (function() {
             
             });
         };
-        
+        var delItemRequest = function(r, n) {
+            var params = {
+                "req": r,
+                "name": n
+              };
+              
+            sendRequest('/items', params, function (response) {
+                var display = $('#display_tb');
+                var res = response.data;
+                
+                console.dir(res);
+                
+                display.text("Go says: status ok");
+            
+            });
+        };
 
         var handleRadios = (function() {
             var type = '';
@@ -186,21 +206,28 @@ var ajax = (function() {
             });
        })();
        $('#new-item-form').submit(function(e) {
-                var name, url, type, method = '';
+                var name, url, type, method, req = '';
                 name = $('#i_name').val();
                 url = $('#i_url').val();
                 type = $('#i_type').val();
                 method = $('#i_method').val();
+                req = $('input[name=protor]:checked').val();
                 e.preventDefault();
                 e.stopImmediatePropagation();
-                console.log("name: " + name + "url: " + url + "type: " + type + " method: " + method);
-                if(name !== '' && url !== '' && type !== '' && method !== '') {
+
+                console.log("name: " + name + "url: " + url + "type: " + type + " method: " + method + " req: " + req);
+                if(req === 'add' && name !== '' && url !== '' && type !== '' && method !== '') {
                     $.modal.close();
-                    addItemRequest(name, url, type, method);
+                    addItemRequest(req, name, url, type, method);
 
                 }
+                else if(req === 'del' && name !== '') {
+                    $.modal.close();
+                    console.log('deleting submit');
+                    delItemRequest(req, name);
+                }
                 else {
-                    alert('Please select all fields.');
+                    alert('Please select all necessary fields.');
                     console.log('required fields empty!');
                 }
             });

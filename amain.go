@@ -160,6 +160,43 @@ func api_handler(w http.ResponseWriter, r *http.Request) *appError {
     return nil
 }
 
+func items_handler(w http.ResponseWriter, r *http.Request) *appError {
+  
+    jsonMap := map[string]string{}
+
+    b, m := ioutil.ReadAll(r.Body)
+    defer r.Body.Close()
+
+    if m != nil {
+        log.Println("api_handler Error")
+        return &appError{m, "resource not found", 500}
+      } 
+     
+   
+    m = json.Unmarshal(b, &jsonMap)
+    if m != nil {
+        log.Println("api_handler Error")
+        return &appError{m, "resource not found", 500}
+      }
+ 
+    log.Println(jsonMap)
+
+    req := jsonMap["req"]
+        log.Println(req)
+        if req == "add" {
+            log.Println("method: add")
+            adder_handler(w, jsonMap)
+        } else if req == "del" {
+            log.Println("method: delete")
+            deleter_handler(w, jsonMap)
+        } else if req == "modify" {
+            log.Println("method: modify")
+            //modify_handler(w, jsonMap)
+        }
+   
+    return nil
+}
+
 func StaticHandler(w http.ResponseWriter, req *http.Request) *appError {
     static_file := req.URL.Path[len(STATIC_URL):]
     if len(static_file) != 0 {
@@ -197,7 +234,7 @@ func main() {
     r.Handle("/scraper", logging(templateHandler(app_handler)))
     r.Handle("/poster", logging(resourceHandler(api_handler))).Methods("POST")
     r.Handle("/lister", logging(resourceHandler(list_handler))).Methods("GET")
-    r.Handle("/adder", logging(resourceHandler(adder_handler))).Methods("POST")
+    r.Handle("/items", logging(resourceHandler(items_handler))).Methods("POST")
     r.Handle("/parse", logging(templateHandler(Parse_handler)))
     r.Handle("/deep", logging(templateHandler(Deep_handler)))
     r.Handle("/test", logging(templateHandler(test_handler)))

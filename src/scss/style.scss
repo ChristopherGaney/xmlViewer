@@ -7,6 +7,51 @@ body {
 .container {
      background: $background;
 }
+.modal {
+    form {
+        margin-bottom: 1.5rem;
+    }
+    .modal-block-wrap {
+        width: 100%;
+        font-size: 0;
+        .modal-blocks {
+            display: inline-block;
+            width: 50%;
+            font-size: 14px;
+            vertical-align: top;
+            &.radios {
+               
+                .radio-wrap {
+                    width: 100%;
+                    padding: 5rem 0 0 3rem;
+                    label,
+                    input {
+                        display: inline-block;
+                        margin-top: 1rem;
+                    }
+                    label {
+                        min-width: 170px;
+                        vertical-align: top;
+                    }
+                    input[type="radio"] {
+                      width: 20px;
+                      height: 20px;
+                      margin-right: 1rem;
+                    }
+                }
+            }
+            &.form-text {
+                label {
+                    font-weight: normal;
+                }
+                font-weight: normal;
+            }
+        }
+    }
+    .modal-close-btn {
+        color: #E05E0D;
+    }
+}
 header {
     width: 100%;
     h1 {

@@ -5,7 +5,7 @@ package main
 import (
 	"log"
 	"net/http"
-    "io/ioutil"
+    //"io/ioutil"
     "encoding/json"
 )
 
@@ -21,24 +21,9 @@ type outlets struct {
     Outlets []media_outlet
 }
 
-func adder_handler(w http.ResponseWriter, r *http.Request) *appError {
+func adder_handler(w http.ResponseWriter, r map[string]string) *appError {
   
-    jsonMap := map[string]string{}
-
-    b, m := ioutil.ReadAll(r.Body)
-    defer r.Body.Close()
-
-    if m != nil {
-        log.Println("list_handler Error")
-        return &appError{m, "resource not found", 500}
-      } 
-     
-   
-    m = json.Unmarshal(b, &jsonMap)
-    if m != nil {
-        log.Println("list_handler Error")
-        return &appError{m, "resource not found", 500}
-      }
+    jsonMap := r
  
     log.Println(jsonMap)
     
@@ -60,6 +45,42 @@ func adder_handler(w http.ResponseWriter, r *http.Request) *appError {
 
         news_map := make(map[string]int)
         news_map["id"] = id
+
+    w.Header().Set("Content-Type", "application/json")             
+  
+    err := json.NewEncoder(w).Encode(news_map)                          
+    if err != nil { 
+        log.Println("api_handler Error")
+        return &appError{err, "resource not found", 500}                                         
+    }
+    
+    return nil
+}
+
+func deleter_handler(w http.ResponseWriter, r map[string]string) *appError {
+     jsonMap := r
+     log.Println("in deleter")
+    log.Println(jsonMap)
+
+     sqlStatement := `
+        DELETE FROM media_outlets
+        WHERE name = $1;`
+        res, serr := db.Exec(sqlStatement, jsonMap["name"])
+         
+          if serr != nil { 
+            log.Println("api_handler Error")
+            return &appError{serr, "resource not found", 500}                                         
+        }
+        log.Println(res)
+        count, perr := res.RowsAffected()
+        if perr != nil { 
+            log.Println("api_handler Error")
+            return &appError{perr, "resource not found", 500}                                         
+        }
+        log.Println("New record ID is:", count)
+
+        news_map := make(map[string]int64)
+        news_map["count"] = count
 
     w.Header().Set("Content-Type", "application/json")             
   

@@ -20,21 +20,36 @@
             </div>
             <div id="ex1" class="modal">
               <form id="new-item-form" name="item-adder">
-                <label for="i_name">Name</label>
-                <input type="text" id="i_name" name="item-name" autocomplete="off" />
-                <label for="i_url">Url</label>
-                <input type="text" id="i_url" name="item-url" autocomplete="off" />
-                <label for="i_type">Type</label>
-                <input type="text" id="i_type" name="item-type" autocomplete="off" />
-                <label for="i_method">Method</label>
-                <input type="text" id="i_method" name="item-method" autocomplete="off" />
-                <div class="">
-                    <div class="submit_wrap">
-                        <input type="submit" id="item-submit" name="submit-item" />
+                <div class="modal-block-wrap">
+                    <div class="modal-blocks form-text">
+                        <label for="i_name">Name</label>
+                        <input type="text" id="i_name" name="item-name" autocomplete="off" />
+                        <label for="i_url">Url</label>
+                        <input type="text" id="i_url" name="item-url" autocomplete="off" />
+                        <label for="i_type">Type</label>
+                        <input type="text" id="i_type" name="item-type" autocomplete="off" />
+                        <label for="i_method">Method</label>
+                        <input type="text" id="i_method" name="item-method" autocomplete="off" />
+                        
                     </div>
+                    <div class="modal-blocks radios">
+                        <div class="radio-wrap">
+                            <input type="radio" id="b-add" name="protor" value="add" autocomplete="off" />
+                            <label for="b-add">Add Item</label>
+                            <input type="radio" id="b-modify" name="protor" value="modify" autocomplete="off" />
+                            <label for="b-modify">Modify Item</label>
+                            <input type="radio" id="b-delete" name="protor" value="del" autocomplete="off" />
+                            <label for="b-delete">Delete Item</label>
+                        </div>
+                    </div>
+                    <div class="">
+                            <div class="submit_wrap">
+                                <input type="submit" id="item-submit" name="submit-item" />
+                            </div>
+                        </div>
                 </div>
             </form>
-              <a href="#" rel="modal:close">Close</a>
+              <a href="#" class="modal-close-btn" rel="modal:close">Close</a>
             </div>
         </div>
     </header>
