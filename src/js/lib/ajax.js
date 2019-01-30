@@ -52,11 +52,11 @@ var ajax = (function() {
             var display = $('#display_tb');
             var items = '';
 
-            items += '<table id="fancytable" class="display"><col width="25%"><col width="45%"><col width="15%"><col width="15%">' +
-                        '<thead><tr><th>Name</th><th>Url</th><th>Type</th><th>Method</th></tr></thead><tbody>';
+            items += '<table id="fancytable" class="display"><col width="5%"><col width="30%"><col width="50%"><col width="15%">' +
+                        '<thead><tr><th>act</th><th>Name</th><th>Url</th><th>Type/Method</th></tr></thead><tbody>';
 
                $.each(result, function(i,v) {
-                        items += '<tr><td>' + v.Name + '</td><td><a href="' + v.Url + '" target="_blank">' + v.Url + '</a></td><td>' + v.Type + '</td><td>' + v.Method + '</td></tr>';
+                        items += '<tr><td><input type="button" name="item-parse" value="parse" /><input type="button" name="item-edit" value="edit" /></td><td>' + v.Name + '</td><td><a href="' + v.Url + '" target="_blank">' + v.Url + '</a></td><td>' + v.Type + '<br>' + v.Method + '</td></tr>';
                 });
 
                 items += '</tbody></table>';
@@ -92,11 +92,12 @@ var ajax = (function() {
             
             });
         };
-
-        var addItemRequest = function(r,n,u,t,m) {
+            // ,u,t,m
+        var addItemRequest = function(r,n,un,u,t,m) {
             var params = {
                 "req": r,
                 "name": n,
+                "url_name": un,
                 "url": u,
                 "type": t,
                 "method": m
@@ -128,7 +129,25 @@ var ajax = (function() {
             
             });
         };
-
+        var modifyItemRequest = function(r,n,u,t,m) {
+            var params = {
+                "req": r,
+                "name": n,
+                "url": u,
+                "type": t,
+                "method": m
+              };
+              
+            sendRequest('/items', params, function (response) {
+                var display = $('#display_tb');
+                var res = response.data;
+                
+                console.dir(res);
+                
+                display.text("Go says: status ok");
+            
+            });
+        };
         var handleRadios = (function() {
             var type = '';
              var isSet = false;
@@ -215,23 +234,29 @@ var ajax = (function() {
                 e.preventDefault();
                 e.stopImmediatePropagation();
 
-                console.log("name: " + name + "url: " + url + "type: " + type + " method: " + method + " req: " + req);
-                if(req === 'add' && name !== '' && url !== '' && type !== '' && method !== '') {
+                //console.log("name: " + name + "url: " + url + "type: " + type + " method: " + method + " req: " + req);
+                // && url !== '' && type !== '' && method !== ''
+                // , url, type, method
+                if(req === 'add' && name !== '') {
                     $.modal.close();
-                    addItemRequest(req, name, url, type, method);
+                    addItemRequest(req, name);
 
                 }
                 else if(req === 'del' && name !== '') {
                     $.modal.close();
-                    console.log('deleting submit');
                     delItemRequest(req, name);
+                }
+                else if(req === 'modify' && name !== '' && url !== '' && type !== '' && method !== '') {
+                    $.modal.close();
+                    addItemRequest(req, name, url, type, method);
+
                 }
                 else {
                     alert('Please select all necessary fields.');
                     console.log('required fields empty!');
                 }
             });
-       var addItem = (function() {
+       var addModal = (function() {
 
             $('a[data-modal]').click(function(event) {
                 var url,type, method, name = '';

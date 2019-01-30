@@ -158,6 +158,12 @@ header {
                         color: gray;
                     }
                 }
+                input[type=button] {
+                    height: 20px;
+                    line-height: 20px;
+                    padding: 0 5px;
+                    font-size: 8px;
+                }
             }
             textarea {
                 width: 100%;

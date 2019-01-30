@@ -191,7 +191,7 @@ func items_handler(w http.ResponseWriter, r *http.Request) *appError {
             deleter_handler(w, jsonMap)
         } else if req == "modify" {
             log.Println("method: modify")
-            //modify_handler(w, jsonMap)
+            modify_handler(w, jsonMap)
         }
    
     return nil

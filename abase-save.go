@@ -28,39 +28,23 @@ func adder_handler(w http.ResponseWriter, r map[string]string) *appError {
     log.Println(jsonMap)
     
      sqlStatement := `
-        INSERT INTO media_outlets (name)
-        VALUES ($1)
-        RETURNING name`
-      sqlStatement2 := `
-        INSERT INTO media_outlets (name, url_name, url, type, method)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING name`
-          name := ""
-          serr := db.QueryRow(sqlStatement, jsonMap["name"]).Scan(&name)
+        INSERT INTO media_outlets (name, url, type, method)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id`
+          id := 0
+          serr := db.QueryRow(sqlStatement, 
+                            jsonMap["name"], 
+                            jsonMap["url"],
+                            jsonMap["type"], 
+                            jsonMap["method"]).Scan(&id)
           if serr != nil { 
             log.Println("api_handler Error")
             return &appError{serr, "resource not found", 500}                                         
         }
-        log.Println("New record ID is:", name)
-        if(jsonMap["url"]) {
-            url_name := ""
-            serr = db.QueryRow(sqlStatement2, jsonMap["name"],
-                                  jsonMap["url_name"],
-                                  jsonMap["url"],
-                                  jsonMap["type"], 
-                                  jsonMap["method"]).Scan(&url_name)
-            if serr != nil { 
-              log.Println("api_handler Error")
-              return &appError{serr, "resource not found", 500}                                         
-          }
-          log.Println("New record ID is:", url_name)
-        }
+        log.Println("New record ID is:", id)
 
-        news_map := make(map[string]string)
-        news_map["name"] = name
-        if(jsonMap["url_name"]) {
-          news_map["url_name"] = url_name
-        }
+        news_map := make(map[string]int)
+        news_map["id"] = id
 
     w.Header().Set("Content-Type", "application/json")             
   
