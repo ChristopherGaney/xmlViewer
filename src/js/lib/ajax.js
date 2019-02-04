@@ -93,15 +93,8 @@ var ajax = (function() {
             });
         };
             // ,u,t,m
-        var addItemRequest = function(r,n,un,u,t,m) {
-            var params = {
-                "req": r,
-                "name": n,
-                "url_name": un,
-                "url": u,
-                "type": t,
-                "method": m
-              };
+        var addItemRequest = function(params) {
+           
               
             sendRequest('/items', params, function (response) {
                 var display = $('#display_tb');
@@ -228,9 +221,16 @@ var ajax = (function() {
                 var name, url, type, method, req = '';
                 name = $('#i_name').val();
                 url = $('#i_url').val();
+                url_name = $('#i_url_name').val();
                 type = $('#i_type').val();
                 method = $('#i_method').val();
                 req = $('input[name=protor]:checked').val();
+                var obj = {"req": req,
+                        "name": name, 
+                        "url": url, 
+                        "url_name": url_name, 
+                        "type": type, 
+                        "method": method};
                 e.preventDefault();
                 e.stopImmediatePropagation();
 
@@ -239,16 +239,22 @@ var ajax = (function() {
                 // , url, type, method
                 if(req === 'add' && name !== '') {
                     $.modal.close();
-                    addItemRequest(req, name);
-
+                    if(url !== '') {
+                        addItemRequest(obj);
+                    }
+                    else {
+                        addItemRequest({"req": req,
+                                        "name": name});
+                    }
                 }
                 else if(req === 'del' && name !== '') {
                     $.modal.close();
-                    delItemRequest(req, name);
+                    delItemRequest({"req": req,
+                                    "name": name});
                 }
                 else if(req === 'modify' && name !== '' && url !== '' && type !== '' && method !== '') {
                     $.modal.close();
-                    addItemRequest(req, name, url, type, method);
+                    addItemRequest(obj);
 
                 }
                 else {

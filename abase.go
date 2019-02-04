@@ -5,20 +5,32 @@ package main
 import (
 	"log"
 	"net/http"
-    //"io/ioutil"
+   //"reflect"
     "encoding/json"
 )
 
+type outlet_urls struct {
+    ID         int      `json:"id"`
+    Mo_id      string   `json:"mo_id"`
+    Url_name   string   `json:"url_name"`
+    Url        string   `json:"url"`
+    Type       string   `json:"type"`
+    Method     string   `json:"method"`
+}
+
 type media_outlet struct {
-    ID         int
-    Name       string
-    Url        string
-    Type       string
-    Method     string
+    ID         int      `json:"id"`
+    Name       string   `json:"name"`
 }
 
 type outlets struct {
-    Outlets []media_outlet
+    Outlets []media_outlet `json:"outlets"`
+}
+
+type medias struct {
+    Id       int
+    Name     string
+    Urls []outlet_urls
 }
 
 func adder_handler(w http.ResponseWriter, r map[string]string) *appError {
@@ -32,25 +44,26 @@ func adder_handler(w http.ResponseWriter, r map[string]string) *appError {
         VALUES ($1)
         RETURNING name`
       sqlStatement2 := `
-        INSERT INTO media_outlets (name, url_name, url, type, method)
+        INSERT INTO outlet_urls (mo_id, url_name, url, type, method)
         VALUES ($1, $2, $3, $4, $5)
-        RETURNING name`
+        RETURNING url_name`
           name := ""
+          url_name := ""
           serr := db.QueryRow(sqlStatement, jsonMap["name"]).Scan(&name)
           if serr != nil { 
             log.Println("api_handler Error")
             return &appError{serr, "resource not found", 500}                                         
         }
         log.Println("New record ID is:", name)
-        if(jsonMap["url"]) {
-            url_name := ""
+        if(jsonMap["url"] != "") {
+           log.Println("url not empty1")
             serr = db.QueryRow(sqlStatement2, jsonMap["name"],
                                   jsonMap["url_name"],
                                   jsonMap["url"],
                                   jsonMap["type"], 
                                   jsonMap["method"]).Scan(&url_name)
             if serr != nil { 
-              log.Println("api_handler Error")
+              log.Println("Second Query Error")
               return &appError{serr, "resource not found", 500}                                         
           }
           log.Println("New record ID is:", url_name)
@@ -58,7 +71,7 @@ func adder_handler(w http.ResponseWriter, r map[string]string) *appError {
 
         news_map := make(map[string]string)
         news_map["name"] = name
-        if(jsonMap["url_name"]) {
+        if(jsonMap["url_name"] != "") {
           news_map["url_name"] = url_name
         }
 
@@ -152,8 +165,7 @@ func modify_handler(w http.ResponseWriter, r map[string]string) *appError {
 
 
 func list_handler(w http.ResponseWriter, r *http.Request) *appError {
-    list := outlets{}
-    
+   
     keys, ok := r.URL.Query()["list"]
     
     if !ok || len(keys[0]) < 1 {
@@ -161,52 +173,57 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
         return nil
     }
 
-    // Query()["key"] will return an array of items, 
-    // we only want the single item.
-
     key := keys[0]
 
     log.Println("Url Param 'key' is: " + string(key))
       
    if string(key) == "bigList" {
 
-        rows, err := db.Query("SELECT id, name, url, type, method FROM media_outlets") // ...outlets LIMIT $1, n) to limit
-          if err != nil {
-            // handle this error better than this
-            panic(err)
-          }
-          defer rows.Close()
-          for rows.Next() {
-            mo := media_outlet{}
-            err = rows.Scan(
-                &mo.ID,
-                &mo.Name,
-                &mo.Url,
-                &mo.Type,
-                &mo.Method)
-            if err != nil {
-                panic(err)
-              }
-        
-            list.Outlets = append(list.Outlets, mo)
+        rows, err := db.Query("SELECT name FROM media_outlets")
+        if err != nil {
+            log.Println("api_handler Error")
+              return &appError{err, "resource not found", 500}
         }
-          // get any error encountered during iteration
-          err = rows.Err()
+        defer rows.Close()
+
+        i := 0
+
+          //jsonMap := make([]string, 10)
+        jsonMap := make(map[int]string, 10)
+
+       for rows.Next() {
+          name := ""
+
+          err = rows.Scan(&name)
+
           if err != nil {
-            panic(err)
+                log.Println("api_handler Error")
+              return &appError{err, "resource not found", 500}
           }
-          log.Println(list)
-        /*news_map := make(map[string]string)
-        news_map["Name"] = "The Washington Post"
-        news_map["Url"] = "https://www.washingtonpost.com/news-business-sitemap.xml"*/
+          
+          jsonMap[i] = name
+          i++
+        }
+
+        err = rows.Err()
+        if err != nil {
+           log.Println("api_handler Error")
+              return &appError{err, "resource not found", 500}
+        }
+        log.Println(jsonMap)
+
+        for _, nm := range jsonMap {
+            log.Println("name: ", nm)
+        }
 
          w.Header().Set("Content-Type", "application/json")             
   
-          err = json.NewEncoder(w).Encode(list)                          
+          err = json.NewEncoder(w).Encode(jsonMap)                          
           if err != nil { 
             log.Println("api_handler Error")
             return &appError{err, "resource not found", 500}                                         
           }
-    }
-    return nil
-}
+      }
+      return nil
+  }
+        
