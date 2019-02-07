@@ -99,11 +99,13 @@ func modify_handler(w http.ResponseWriter, r map[string]string) *appError {
     log.Println(jsonMap)
 
      sqlStatement := `
-      UPDATE media_outlets
-      SET url = $2, type = $3, method = $4
-      WHERE name = $1;`
+      INSERT INTO outlet_urls (mo_id,url_name,url,type,method)
+      VALUES ($1,$2,$3,$4,$5)
+      ON CONFLICT (url_name) DO UPDATE
+      SET url = $3, type = $4, method = $5;`
       res, serr := db.Exec(sqlStatement, 
-                            jsonMap["name"], 
+                            jsonMap["mo_id"]
+                            jsonMap["url_name"], 
                             jsonMap["url"],
                             jsonMap["type"], 
                             jsonMap["method"])

@@ -95,7 +95,6 @@ var ajax = (function() {
             // ,u,t,m
         var addItemRequest = function(params) {
            
-              
             sendRequest('/items', params, function (response) {
                 var display = $('#display_tb');
                 var res = response.data;
@@ -106,12 +105,8 @@ var ajax = (function() {
             
             });
         };
-        var delItemRequest = function(r, n) {
-            var params = {
-                "req": r,
-                "name": n
-              };
-              
+        var delItemRequest = function(params) {
+            
             sendRequest('/items', params, function (response) {
                 var display = $('#display_tb');
                 var res = response.data;
@@ -226,9 +221,9 @@ var ajax = (function() {
                 method = $('#i_method').val();
                 req = $('input[name=protor]:checked').val();
                 var obj = {"req": req,
-                        "name": name, 
-                        "url": url, 
+                        "name": name,
                         "url_name": url_name, 
+                        "url": url, 
                         "type": type, 
                         "method": method};
                 e.preventDefault();
@@ -247,15 +242,16 @@ var ajax = (function() {
                                         "name": name});
                     }
                 }
+
                 else if(req === 'del' && name !== '') {
+                    console.log(req + ' ' + name);
                     $.modal.close();
                     delItemRequest({"req": req,
                                     "name": name});
                 }
-                else if(req === 'modify' && name !== '' && url !== '' && type !== '' && method !== '') {
+                else if(req === 'modify' && name !== '' && url_name !== '') {
                     $.modal.close();
                     addItemRequest(obj);
-
                 }
                 else {
                     alert('Please select all necessary fields.');
