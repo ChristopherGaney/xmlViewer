@@ -52,11 +52,24 @@ var ajax = (function() {
             var display = $('#display_tb');
             var items = '';
 
-            items += '<table id="fancytable" class="display"><col width="5%"><col width="30%"><col width="50%"><col width="15%">' +
-                        '<thead><tr><th>act</th><th>Name</th><th>Url</th><th>Type/Method</th></tr></thead><tbody>';
+            //console.log("here");
+            //console.log(result);
+            //console.log('not here');
+
+            items += '<table id="fancytable" class="display"><col width="30%"><col width="7%"><tbody>';
 
                $.each(result, function(i,v) {
-                        items += '<tr><td><input type="button" name="item-parse" value="parse" /><input type="button" name="item-edit" value="edit" /></td><td>' + v.Name + '</td><td><a href="' + v.Url + '" target="_blank">' + v.Url + '</a></td><td>' + v.Type + '<br>' + v.Method + '</td></tr>';
+                    //console.log(v)
+                    items += '<tr><td>' + v.Name + '</td><td></td></tr>';
+
+                    $.each(v.Urls, function(i,m) {
+                        //console.log(m)
+                       items += '<tr><td>' + m.ID + '</td><td><a href="' + m.Url + '" target="_blank">' + m.Url + '</a></td></tr>' +
+
+                                '<tr><td>' + m.Type + ' ' + m.Method + '</td><td><input type="button" name="item-parse" value="parse" /><input type="button" name="item-edit" value="edit" /></td></tr>';
+
+                    });
+
                 });
 
                 items += '</tbody></table>';
@@ -88,7 +101,7 @@ var ajax = (function() {
             getRequest('/lister' + params, function (response) {
                 var res = response.data;
                 
-               displayList(res.Outlets);
+               displayList(res.Items);
             
             });
         };

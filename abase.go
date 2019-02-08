@@ -27,10 +27,13 @@ type outlets struct {
 }
 
 type medias struct {
-   
+   Name  string
     Urls []outlet_urls
 }
 
+type biglist struct {
+  Items []medias
+}
 func adder_handler(w http.ResponseWriter, r map[string]string) *appError {
   
     jsonMap := r
@@ -186,8 +189,8 @@ func modify_handler(w http.ResponseWriter, r map[string]string) *appError {
 
 
 func list_handler(w http.ResponseWriter, r *http.Request) *appError {
+   pack := biglist{}
    
-   list := medias{}
 
     keys, ok := r.URL.Query()["list"]
     
@@ -234,9 +237,10 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
               return &appError{err, "resource not found", 500}
         }
         
-
+        log.Println(jsonSlice)
         for _, nm := range jsonSlice {
             //log.Println("name: ", nm)
+          list := medias{}
             rows, err = db.Query("SELECT * FROM outlet_urls WHERE mo_id = $1", nm)
             if err != nil {
                 log.Println("api_handler Error")
@@ -258,14 +262,15 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
                 }
                 
                 list.Urls = append(list.Urls, ou)
+                list.Name = nm
               }
-
+              pack.Items = append(pack.Items, list)
         }
 
-        log.Println(list)
+        log.Println(reflect.TypeOf(pack))
          w.Header().Set("Content-Type", "application/json")             
   
-          err = json.NewEncoder(w).Encode(list)                          
+          err = json.NewEncoder(w).Encode(pack)                          
           if err != nil { 
             log.Println("api_handler Error")
             return &appError{err, "resource not found", 500}                                         
