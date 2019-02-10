@@ -56,23 +56,23 @@ var ajax = (function() {
             //console.log(result);
             //console.log('not here');
 
-            items += '<table id="fancytable" class="display"><col width="30%"><col width="7%"><tbody>';
-
+            items += '<div class="list_wrapper">';
+                
                $.each(result, function(i,v) {
                     //console.log(v)
-                    items += '<tr><td>' + v.Name + '</td><td></td></tr>';
+                    items += '<div class="row name_row"><div class="six columns">' + v.Name + '</div><div class="six columns"></div></div>';
 
                     $.each(v.Urls, function(i,m) {
                         //console.log(m)
-                       items += '<tr><td>' + m.ID + '</td><td><a href="' + m.Url + '" target="_blank">' + m.Url + '</a></td></tr>' +
+                       items += '<div class="row url_row"><div class="two columns">' + m.ID + '</div><div class="ten columns"><a href="' + m.Url + '" target="_blank">' + m.Url + '</a></div></div>' +
 
-                                '<tr><td>' + m.Type + ' ' + m.Method + '</td><td><input type="button" name="item-parse" value="parse" /><input type="button" name="item-edit" value="edit" /></td></tr>';
+                                '<div class="row meta_row"><div class="eight columns"><span>' + m.Type + '</span><span>' + m.Method + '</span></div><div class="four columns"><input type="button" id="item_parse" name="item-parse" value="parse" /><input type="button" id="item_edit" name="item-edit" value="edit" /></div></div>';
 
                     });
-
+                   
                 });
 
-                items += '</tbody></table>';
+                items += '</div>';
                 display.html(items);
         }
         var makeRequest = function(u,t,m) {
@@ -119,7 +119,6 @@ var ajax = (function() {
             });
         };
         var delItemRequest = function(params) {
-            
             sendRequest('/items', params, function (response) {
                 var display = $('#display_tb');
                 var res = response.data;
@@ -235,7 +234,6 @@ var ajax = (function() {
                 req = $('input[name=protor]:checked').val();
                 var obj = {"req": req,
                         "name": name,
-                        "url_name": url_name, 
                         "url": url, 
                         "type": type, 
                         "method": method};
@@ -256,13 +254,19 @@ var ajax = (function() {
                     }
                 }
 
-                else if(req === 'del' && name !== '') {
+                else if(req === 'del-cp' && name !== '') {
                     console.log(req + ' ' + name);
                     $.modal.close();
                     delItemRequest({"req": req,
                                     "name": name});
                 }
-                else if(req === 'modify' && name !== '' && url_name !== '') {
+                 else if(req === 'del-url' && url !== '') {
+                    console.log(req + ' ' + url);
+                    $.modal.close();
+                    delItemRequest({"req": req,
+                                    "url": url});
+                }
+                else if(req === 'modify' && name !== '' && url !== '') {
                     $.modal.close();
                     addItemRequest(obj);
                 }
@@ -271,7 +275,28 @@ var ajax = (function() {
                     console.log('required fields empty!');
                 }
             });
-       var addModal = (function() {
+       var editParserItem = (function() {
+
+            $('a[data-modal]').click(function(event) {
+                var url,type, method, name = '';
+                url = $('#inp_url').val();
+                type = $('input[name=rsource_typ]:checked').val();
+                if(type === 'xml') {
+                    name = 'xml_typ';
+                }
+                else {
+                    name = 'http_typ';
+                }
+                method = $('input[name=' + name + ']:checked').val();
+                $('#i_url').val(url);
+                $('#i_type').val(type);
+                $('#i_method').val(method);
+
+              $(this).modal();
+              return false;
+            });
+       })();
+       var editListItem = (function() {
 
             $('a[data-modal]').click(function(event) {
                 var url,type, method, name = '';

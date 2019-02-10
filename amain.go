@@ -188,8 +188,11 @@ func items_handler(w http.ResponseWriter, r *http.Request) *appError {
         if req == "add" {
             log.Println("method: add")
             adder_handler(w, jsonMap)
-        } else if req == "del" {
-            log.Println("method: delete")
+        } else if req == "del-cp" {
+            log.Println("method: del-cp")
+            deleter_handler(w, jsonMap)
+        } else if req == "del-url" {
+            log.Println("method: del-url")
             deleter_handler(w, jsonMap)
         } else if req == "modify" {
             log.Println("method: modify")

@@ -22,12 +22,10 @@
               <form id="new-item-form" name="item-adder">
                 <div class="modal-block-wrap">
                     <div class="modal-blocks form-text">
-                        <label for="i_name">Name</label>
+                        <label for="i_name">Content Provider</label>
                         <input type="text" id="i_name" name="item-name" autocomplete="off" />
                         <label for="i_url">Url</label>
                         <input type="text" id="i_url" name="item-url" autocomplete="off" />
-                        <label for="i_url_name">Url Name</label>
-                        <input type="text" id="i_url_name" name="item-url-name" autocomplete="off" />
                         <label for="i_type">Type</label>
                         <input type="text" id="i_type" name="item-type" autocomplete="off" />
                         <label for="i_method">Method</label>
@@ -37,11 +35,13 @@
                     <div class="modal-blocks radios">
                         <div class="radio-wrap">
                             <input type="radio" id="b-add" name="protor" value="add" autocomplete="off" />
-                            <label for="b-add">Add Item</label>
+                            <label for="b-add">Add CP</label>
                             <input type="radio" id="b-modify" name="protor" value="modify" autocomplete="off" />
-                            <label for="b-modify">Modify Item</label>
-                            <input type="radio" id="b-delete" name="protor" value="del" autocomplete="off" />
-                            <label for="b-delete">Delete Item</label>
+                            <label for="b-modify">Modify Url</label>
+                            <input type="radio" id="b-delete-url" name="protor" value="del-url" autocomplete="off" />
+                            <label for="b-delete-url">Delete Url</label>
+                            <input type="radio" id="b-delete-cp" name="protor" value="del-cp" autocomplete="off" />
+                            <label for="b-delete-cp">Delete CP</label>
                         </div>
                     </div>
                     <div class="">

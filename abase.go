@@ -116,10 +116,25 @@ func deleter_handler(w http.ResponseWriter, r map[string]string) *appError {
      log.Println("in deleter")
     log.Println(jsonMap)
 
-     sqlStatement := `
+      sqlStatement := `
         DELETE FROM media_outlets
         WHERE name = $1;`
-        res, serr := db.Exec(sqlStatement, jsonMap["name"])
+      sqlStatement2 := `
+        DELETE FROM outlet_urls
+        WHERE url = $1;`
+
+      statement := ""
+      vars := ""
+        if jsonMap["req"] == "del-cp" {
+            statement = sqlStatement
+            vars = jsonMap["name"]
+
+        } else {
+            statement = sqlStatement2
+            vars = jsonMap["url"]
+        }
+
+        res, serr := db.Exec(statement, vars)
          
           if serr != nil { 
             log.Println("api_handler Error")
@@ -250,20 +265,22 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
               for rows.Next() {
                 ou := outlet_urls{}
 
-                err = rows.Scan(&ou.ID,
+               err = rows.Scan(&ou.ID,
                   &ou.Mo_id,
                   &ou.Url,
                   &ou.Type,
-                  &ou.Method)
-
-                if err != nil {
-                      log.Println("api_handler Error")
-                    return &appError{err, "resource not found", 500}
+                  &ou.Method);
+               
+                if err != nil { 
+                  log.Println("api_handler Error")
+                  return &appError{err, "resource not found", 500}                                         
                 }
-                
-                list.Urls = append(list.Urls, ou)
-                list.Name = nm
+
+                if ou.Mo_id != "" {
+                  list.Urls = append(list.Urls, ou)
+                }
               }
+              list.Name = nm
               pack.Items = append(pack.Items, list)
         }
 
