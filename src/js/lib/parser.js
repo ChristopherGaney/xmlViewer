@@ -1,4 +1,4 @@
-var ajax = (function() {
+var parser = (function() {
 
 
    $(document).ready(function() {
@@ -411,4 +411,4 @@ var ajax = (function() {
 
     });
 })();
-module.exports = ajax;
+module.exports = parser;
