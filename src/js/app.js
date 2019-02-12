@@ -1,4 +1,8 @@
 
-var ajax = require('./lib/ajax.js');
+$(document).ready(function() {
 
-console.log('starting output');
+	console.log('starting output');
+
+	var parser = require('./lib/parser.js');
+
+});

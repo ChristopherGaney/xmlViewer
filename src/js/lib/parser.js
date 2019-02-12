@@ -1,113 +1,39 @@
+
+var ajax = require('./ajax.js');
+var viewer = require('./viewer.js');
+
 var parser = (function() {
-
-
-   $(document).ready(function() {
         var params;
-        var getRequest = function(ext, cb) {
-            //var dt = JSON.stringify(t);
-            console.log(ext);
-            axios.get(ext)
-              .then(cb)
-              .catch(function (error) {
-                console.log(error);
-              });
-        };
 
-        var sendRequest = function(ext, t, cb) {
-            var dt = JSON.stringify(t);
-            axios.post(ext, dt)
-              .then(cb)
-              .catch(function (error) {
-                console.log(error);
-              });
-        };
-
-       
-        var displayXML = function(result) {
-            var display = $('#display_tb');
-            var items = '';
-            
-            if(params.method === "flat-xml" || params.method === "deep-xml") {
-                items += '<table id="fancytable" class="display"><col width="35%"><col width="65%">' +
-                        '<thead><tr><th>Title</th><th>Keywords</th></tr></thead><tbody>';
-
-                $.each(result, function(i,v) {
-                        items += '<tr><td><a href="' + v.Location + '" target="_blank">' + v.Title + '</a></td><td>' + v.Keyword + '</td></tr>';
-                });
-
-                items += '</tbody></table>';
-
-                
-            }
-            else if(params.method === "raw-xml") {
-                
-               items += '<textarea style="width: 100%; min-height: 500px;">' + result[0] + '</textarea>';
-            }
-            display.html(items);
-        }
-        var displayHTML = function(result) {
-
-        }
-        var displayList = function(result) {
-            var display = $('#display_tb');
-            var items = '';
-
-            //console.log("here");
-            //console.log(result);
-            //console.log('not here');
-
-            items += '<div class="list_wrapper">';
-                
-               $.each(result, function(i,v) {
-                    //console.log(v)
-                    items += '<div class="list_tables"><div class="row name_row"><div class="six columns listname">' + v.Name + '</div><div class="six columns"></div></div>';
-
-                    $.each(v.Urls, function(i,m) {
-                        //console.log(m)
-                       items += '<div class="row url_row"><div class="two columns listid">' + m.ID + '</div><div class="ten columns"><a href="' + m.Url + '" target="_blank" class="listurl">' + m.Url + '</a></div></div>' +
-
-                                '<div class="row meta_row"><div class="eight columns"><span class="listtype">' + m.Type + '</span><span class="listmethod">' + m.Method + '</span></div><div class="four columns"><span class="prs"><a href="#" class="item_parse" name="item-parse" value="parse">Parse</a></span><span class="ers"><a href="#ex1" class="item_edit" data-modal>Edit</a></span></div></div></div>';
-
-                    });
-                   
-                });
-
-                items += '</div>';
-                display.html(items);
-                editListItem.setButton();
-                parseListItem.setButton();
-        }
         var makeRequest = function(u,t,m) {
              params = {
                 "url": u,
                 "type": t,
                 "method": m
               };
-            sendRequest('/poster', params, function (response) {
+            ajax.sendRequest('/poster', params, function (response) {
                 var res = response.data;
                 console.log('returned from /poster');
 
                 if(params.type === 'xml') {
-                    displayXML(res);
+                    viewer.displayXML(res, params);
                 }
                 else {
-                    displayHTML(res);
+                    viewer.displayHTML(res, params);
                 }
             });
         };
+        
         var makeListRequest = function() {
-           /* var params = {
-                "list": "true"
-              };*/
             var params = "?list=bigList";
-            getRequest('/lister' + params, function (response) {
+            ajax.getRequest('/lister' + params, function (response) {
                 var res = response.data;
                 
-               displayList(res.Items);
+               viewer.displayList(res.Items, editListItem.setButton, parseListItem.setButton);
             
             });
         };
-            // ,u,t,m
+        
         var addItemRequest = function(params) {
            
             sendRequest('/items', params, function (response) {
@@ -120,36 +46,9 @@ var parser = (function() {
             
             });
         };
-        var delItemRequest = function(params) {
-            sendRequest('/items', params, function (response) {
-                var display = $('#display_tb');
-                var res = response.data;
-                
-                console.dir(res);
-                
-                display.text("Go says: status ok");
-            
-            });
-        };
-        var modifyItemRequest = function(r,n,u,t,m) {
-            var params = {
-                "req": r,
-                "name": n,
-                "url": u,
-                "type": t,
-                "method": m
-              };
-              
-            sendRequest('/items', params, function (response) {
-                var display = $('#display_tb');
-                var res = response.data;
-                
-                console.dir(res);
-                
-                display.text("Go says: status ok");
-            
-            });
-        };
+        
+
+         // Handler for Sidebar Parser Inputs
         var handleRadios = (function() {
             var type = '';
              var isSet = false;
@@ -221,11 +120,16 @@ var parser = (function() {
             });
             
        })();
+
+       // Get the List of Content Providers
        var getList = (function() {
             $('#show-list').on('click', function() {
                 makeListRequest();
             });
        })();
+
+
+      // Handler for Editor Modal Inputs
        $('#new-item-form').submit(function(e) {
                 var name, url, type, method, req = '';
                 name = $('#i_name').val();
@@ -259,13 +163,13 @@ var parser = (function() {
                 else if(req === 'del-cp' && name !== '') {
                     console.log(req + ' ' + name);
                     $.modal.close();
-                    delItemRequest({"req": req,
+                    addItemRequest({"req": req,
                                     "name": name});
                 }
                  else if(req === 'del-url' && url !== '') {
                     console.log(req + ' ' + url);
                     $.modal.close();
-                    delItemRequest({"req": req,
+                    addItemRequest({"req": req,
                                     "url": url});
                 }
                 else if(req === 'modify' && name !== '' && url !== '') {
@@ -277,8 +181,9 @@ var parser = (function() {
                     console.log('required fields empty!');
                 }
             });
-       var editParserItem = (function() {
 
+
+       var editParserItem = (function() {
             $('.add-btn a[data-modal]').click(function(event) {
                 var name, url, type, method, tname = '';
                 name = $('#hidden_name').val();
@@ -300,8 +205,9 @@ var parser = (function() {
               return false;
             });
        })();
+
+
        var editListItem = (function() {
-       		
        		var setEditButton = function() {
        			var wasClicked = function(event) {
        				console.log("the box");
@@ -335,8 +241,8 @@ var parser = (function() {
         };
        })();
 
+
        var parseListItem = (function() {
-       		
        		var setParseButton = function() {
        			var wasClicked = function(event) {
        				console.log("the box");
@@ -405,10 +311,9 @@ var parser = (function() {
         	setButton: function() {
         		setParseButton();
         	}
-
         };
        })();
 
-    });
+    
 })();
 module.exports = parser;
