@@ -7,6 +7,7 @@ import (
 	"net/http"
    "reflect"
     "encoding/json"
+    "github.com/lib/pq"
 )
 
 type outlet_urls struct {
@@ -42,10 +43,11 @@ func adder_handler(w http.ResponseWriter, r map[string]string) *appError {
     
     sqlCheck := `select exists(select 1 from media_outlets where name = $1)`
     rows, err := db.Query(sqlCheck, jsonMap["name"])
-     if err != nil { 
-            log.Println("api_handler Error")
-            return &appError{err, "resource not found", 500}                                         
-      }
+
+    if err, ok := err.(*pq.Error); ok {
+      log.Println("adder_handler, sqlCheck error:", err.Code.Name())
+      return &appError{err, err.Code.Name(), 500}
+    }
 
       res := ""
      for rows.Next() {
@@ -220,17 +222,38 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
       
    if string(key) == "bigList" {
 
-        rows, err := db.Query("SELECT name FROM media_outlets")
+        rows, err := db.Query("SELECT COUNT (*) FROM media_outlets")
         if err != nil {
             log.Println("api_handler Error")
               return &appError{err, "resource not found", 500}
         }
         defer rows.Close()
 
+        count := 0
+        for rows.Next() {
+
+          err:= rows.Scan(&count)
+          if err != nil {
+            log.Println("api_handler Error")
+              return &appError{err, "resource not found", 500}
+          }
+        }
+
+        rows, err = db.Query("SELECT name FROM media_outlets")
+        if err != nil {
+            log.Println("api_handler Error")
+              return &appError{err, "resource not found", 500}
+        }
+        log.Println(count)
+
         i := 0
+        c := 20
+        if count != 0 {
+          c = count
+        }
 
           //jsonMap := make([]string, 10)
-        jsonSlice := make([]string, 10)
+        jsonSlice := make([]string, c)
 
         for rows.Next() {
           name := ""

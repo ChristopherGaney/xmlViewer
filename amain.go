@@ -44,6 +44,8 @@ func (fn resourceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+//type items_handler func(http.ResponseWriter, *http.Request) *appError
+
 type templateHandler func(http.ResponseWriter, *http.Request) *appError
 
 func (fn templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -160,8 +162,9 @@ func api_handler(w http.ResponseWriter, r *http.Request) *appError {
     return nil
 }
 
+//func (fn items_handler) ServeHTTP(w http.ResponseWriter, r *http.Request)  *appError {
 func items_handler(w http.ResponseWriter, r *http.Request) *appError {
-  
+    
     jsonMap := map[string]string{}
     log.Println(r)
     b, m := ioutil.ReadAll(r.Body)
@@ -187,7 +190,16 @@ func items_handler(w http.ResponseWriter, r *http.Request) *appError {
         log.Println(req)
         if req == "add" {
             log.Println("method: add")
-            adder_handler(w, jsonMap)
+            e := adder_handler(w, jsonMap)
+            if e != nil {
+                log.Println(e.Error)
+                log.Println(e.Message, e.Code)
+                cM := make(map[string]interface{})
+                cM["message"] = e.Message
+                cM["code"] = e.Code
+                json.NewEncoder(w).Encode(cM) 
+            }
+          
         } else if req == "del-cp" {
             log.Println("method: del-cp")
             deleter_handler(w, jsonMap)
@@ -198,7 +210,7 @@ func items_handler(w http.ResponseWriter, r *http.Request) *appError {
             log.Println("method: modify")
             modify_handler(w, jsonMap)
         }
-   
+        
     return nil
 }
 

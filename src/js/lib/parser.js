@@ -36,14 +36,17 @@ var parser = (function() {
         
         var addItemRequest = function(params) {
            
-            sendRequest('/items', params, function (response) {
+            ajax.sendRequest('/items', params, function (response) {
                 var display = $('#display_tb');
                 var res = response.data;
-                
-                console.dir(res);
-                
-                display.text("Go says: status ok");
-            
+                console.dir(res.code);
+                console.log(res.message)
+                if(res.code == 500) {
+                    display.text("message: " + res.message + " code: " + res.code);
+                }
+                else {
+                    display.text("Go says: status ok");
+                }
             });
         };
         
@@ -134,7 +137,6 @@ var parser = (function() {
                 var name, url, type, method, req = '';
                 name = $('#i_name').val();
                 url = $('#i_url').val();
-                url_name = $('#i_url_name').val();
                 type = $('#i_type').val();
                 method = $('#i_method').val();
                 req = $('input[name=protor]:checked').val();
@@ -146,7 +148,7 @@ var parser = (function() {
                 e.preventDefault();
                 e.stopImmediatePropagation();
 
-                //console.log("name: " + name + "url: " + url + "type: " + type + " method: " + method + " req: " + req);
+                console.log("name: " + name + "url: " + url + "type: " + type + " method: " + method + " req: " + req);
                 // && url !== '' && type !== '' && method !== ''
                 // , url, type, method
                 if(req === 'add' && name !== '') {
