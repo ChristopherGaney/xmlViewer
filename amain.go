@@ -34,13 +34,32 @@ type appError struct {
     Code    int
 }
 
+type resourceStaticHandler func(http.ResponseWriter, *http.Request) *appError
+
+func (fn resourceStaticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+    if e := fn(w, r); e != nil { 
+        log.Println(e.Error)
+        log.Println(e.Message, e.Code)
+        http.Error(w, e.Message, e.Code)
+    }
+}
+
 type resourceHandler func(http.ResponseWriter, *http.Request) *appError
 
 func (fn resourceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     if e := fn(w, r); e != nil { 
         log.Println(e.Error)
         log.Println(e.Message, e.Code)
-        http.Error(w, e.Message, e.Code)
+        cM := make(map[string]interface{})
+        cM["message"] = e.Message
+        cM["code"] = e.Code
+        w.Header().Set("Content-Type", "application/json") 
+        err := json.NewEncoder(w).Encode(cM) 
+        if err != nil { 
+            log.Println("resource_handler, json Encode Error")
+            fail := appError{err, "unknown final fail", 500}
+            http.Error(w, fail.Message, fail.Code)
+        }
     }
 }
 
@@ -50,7 +69,6 @@ type templateHandler func(http.ResponseWriter, *http.Request) *appError
 
 func (fn templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     if e := fn(w, r); e != nil { 
-       
         log.Println(e.Error)
         log.Println(e.Message, e.Code)
         log.Println("Executing 404 template")
@@ -172,15 +190,14 @@ func items_handler(w http.ResponseWriter, r *http.Request) *appError {
     defer r.Body.Close()
 
     if m != nil {
-        log.Println("api_handler Error")
+        log.Println("items_handler ioutil.ReadAll Error")
         return &appError{m, "resource not found", 500}
       } 
      
-   
     m = json.Unmarshal(b, &jsonMap)
     log.Println(m)
     if m != nil {
-        log.Println("api_handler Error")
+        log.Println("items_handler json.Unmarshal Error")
         return &appError{m, "resource not found", 500}
       }
  
@@ -192,23 +209,30 @@ func items_handler(w http.ResponseWriter, r *http.Request) *appError {
             log.Println("method: add")
             e := adder_handler(w, jsonMap)
             if e != nil {
-                log.Println(e.Error)
-                log.Println(e.Message, e.Code)
-                cM := make(map[string]interface{})
-                cM["message"] = e.Message
-                cM["code"] = e.Code
-                json.NewEncoder(w).Encode(cM) 
+                log.Println("items_handler, adder Error")
+                return &appError{e.Error, e.Message, e.Code}
             }
-          
         } else if req == "del-cp" {
             log.Println("method: del-cp")
-            deleter_handler(w, jsonMap)
+            e := deleter_handler(w, jsonMap)
+            if e != nil {
+                log.Println("items_handler, del-cp Error")
+                return &appError{e.Error, e.Message, e.Code}
+            }
         } else if req == "del-url" {
             log.Println("method: del-url")
-            deleter_handler(w, jsonMap)
+            e := deleter_handler(w, jsonMap)
+            if e != nil {
+                log.Println("items_handler, del-url Error")
+                return &appError{e.Error, e.Message, e.Code}
+            }
         } else if req == "modify" {
             log.Println("method: modify")
-            modify_handler(w, jsonMap)
+            e := modify_handler(w, jsonMap)
+            if e != nil {
+                log.Println("items_handler, modify Error")
+                return &appError{e.Error, e.Message, e.Code}
+            }
         }
         
     return nil
@@ -224,7 +248,7 @@ func StaticHandler(w http.ResponseWriter, req *http.Request) *appError {
             return nil
         }
         if err != nil {
-            log.Println("staticHandler Error")
+            log.Println("staticHandler Open() Error")
             return &appError{err, "resource not found", 500}
           } 
     }
@@ -238,7 +262,8 @@ func main() {
     InitDB()
     err := db.Ping()
     if err != nil {
-      panic(err)
+        log.Println("Panicking. No DB.")
+        panic(err)
     }
     
     log.Println("Successfully connected!")
@@ -246,7 +271,7 @@ func main() {
     methods := []string{"GET", "POST", "PUT", "DELETE"}
     headers := []string{"Content-Type"}
     r := mux.NewRouter()
-    r.PathPrefix("/static/").Handler(logging(resourceHandler(StaticHandler)))
+    r.PathPrefix("/static/").Handler(logging(resourceStaticHandler(StaticHandler)))
     r.Handle("/", logging(templateHandler(index_handler)))
     r.Handle("/scraper", logging(templateHandler(app_handler)))
     r.Handle("/poster", logging(resourceHandler(api_handler))).Methods("POST")

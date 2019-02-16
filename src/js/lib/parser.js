@@ -42,7 +42,7 @@ var parser = (function() {
                 console.dir(res.code);
                 console.log(res.message)
                 if(res.code == 500) {
-                    display.text("message: " + res.message + " code: " + res.code);
+                    display.html("message: " + res.message + "<br>code: " + res.code);
                 }
                 else {
                     display.text("Go says: status ok");
@@ -96,7 +96,7 @@ var parser = (function() {
                 }
                 
             });
-            $('input[name=xml_typ], input[name=http_typ]').on('click', function() {
+          /*  $('input[name=xml_typ], input[name=http_typ]').on('click', function() {
                 var formName = $('#resource-method');
                 var quitListening = function() {
                     $('body').off('keypress');
@@ -120,7 +120,7 @@ var parser = (function() {
 
                 isSet = true;
                 }
-            });
+            });*/
             
        })();
 
@@ -198,12 +198,17 @@ var parser = (function() {
                     tname = 'http_typ';
                 }
                 method = $('input[name=' + tname + ']:checked').val();
-                $('#i_name').val(name);
+                console.log(typeof(name));
+                if(name !== '') {
+                    console.log("nomshky");
+                    $('#i_name').val(name);
+                }
                 $('#i_url').val(url);
                 $('#i_type').val(type);
                 $('#i_method').val(method);
 
               $(this).modal();
+              //document.getElementById('ex1').focus();
               return false;
             });
        })();

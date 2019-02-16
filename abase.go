@@ -49,16 +49,15 @@ func adder_handler(w http.ResponseWriter, r map[string]string) *appError {
       return &appError{err, err.Code.Name(), 500}
     }
 
-      res := ""
+    res := ""
      for rows.Next() {
-            err = rows.Scan(&res)
-                  if err != nil { 
-                    log.Println("api_handler Error")
-                    return &appError{err, "resource not found", 500}                                         
-                }
+          err = rows.Scan(&res)
+          if err, ok := err.(*pq.Error); ok {
+            log.Println("adder_handler, rows.Next error:", err.Code.Name())
+            return &appError{err, err.Code.Name(), 500}
+          }
         }
         log.Println(res)
-    log.Println(reflect.TypeOf(res))
 
      sqlStatement := `
         INSERT INTO media_outlets (name)
@@ -74,27 +73,25 @@ func adder_handler(w http.ResponseWriter, r map[string]string) *appError {
         url := ""
 
         if(res == "false") {
-          
-            serr := db.QueryRow(sqlStatement, jsonMap["name"]).Scan(&name)
-            if serr != nil { 
-                log.Println("api_handler Error")
-                return &appError{serr, "resource not found", 500}                                         
+            err = db.QueryRow(sqlStatement, jsonMap["name"]).Scan(&name)
+            if err, ok := err.(*pq.Error); ok {
+              log.Println("adder_handler, rows.Next error:", err.Code.Name())
+              return &appError{err, err.Code.Name(), 500}
             }
           log.Println("New record ID is:", name)
         }
         if(jsonMap["url"] != "") {
              log.Println("url not empty1")
-              serr := db.QueryRow(sqlStatement2, jsonMap["name"],
+              err = db.QueryRow(sqlStatement2, jsonMap["name"],
                                     jsonMap["url"],
                                     jsonMap["type"], 
                                     jsonMap["method"]).Scan(&url)
-              if serr != nil { 
-                  log.Println("Second Query Error")
-                  return &appError{serr, "resource not found", 500}                                         
+              if err, ok := err.(*pq.Error); ok {
+                log.Println("adder_handler, rows.Next error:", err.Code.Name())
+                return &appError{err, err.Code.Name(), 500}
               }
             log.Println("New record ID is:", url)
           }
-        
 
         news_map := make(map[string]string)
         news_map["name"] = name
