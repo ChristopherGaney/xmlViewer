@@ -34,17 +34,26 @@ var viewer = (function() {
             items += '<div class="list_wrapper">';
                 
                $.each(result, function(i,v) {
-                    //console.log(v)
+                    var len = v.Urls.length;
+                    var count = 0;
+                     console.log(v.Urls.length);
                     items += '<div class="list_tables"><div class="row name_row"><div class="six columns listname">' + v.Name + '</div><div class="six columns"></div></div>';
 
                     $.each(v.Urls, function(i,m) {
-                        //console.log(m)
-                       items += '<div class="row url_row"><div class="two columns listid">' + m.ID + '</div><div class="ten columns"><a href="' + m.Url + '" target="_blank" class="listurl">' + m.Url + '</a></div></div>' +
+                        var cls = '';
+                        if(len > 1) {
+                            if(count % 2 === 0) { 
+                                cls = ' even';
+                            } else { 
+                                cls = ' odd';
+                            }
+                        }
+                       items += '<div class="url_wrapper_wrap' + cls + '"><div class="row url_row"><div class="two columns listid">' + m.ID + '</div><div class="ten columns"><a href="' + m.Url + '" target="_blank" class="listurl">' + m.Url + '</a></div></div>' + '<div class="row meta_row"><div class="eight columns"><span class="listtype">' + m.Type + '</span><span class="listmethod">' + m.Method + '</span></div><div class="four columns"><span class="prs"><a href="#" class="item_parse" name="item-parse" value="parse">Parse</a></span><span class="ers"><a href="#ex1" class="item_edit" data-modal>Edit</a></span></div></div></div>';
 
-                                '<div class="row meta_row"><div class="eight columns"><span class="listtype">' + m.Type + '</span><span class="listmethod">' + m.Method + '</span></div><div class="four columns"><span class="prs"><a href="#" class="item_parse" name="item-parse" value="parse">Parse</a></span><span class="ers"><a href="#ex1" class="item_edit" data-modal>Edit</a></span></div></div>';
+                        count++;
 
                     });
-                   
+                   items += '</div>';
                 });
 
                 items += '</div>';

@@ -221,11 +221,11 @@ var parser = (function() {
 	                var name, url,type, method = '';
 	                //console.log('item edit clicked');
 	                var box = $(this).closest('.list_tables');
-	                
 	                name = box.find('.listname').text();
-	                url = box.find('.listurl').text();
-	                type = box.find('.listtype').text();
-	                method = box.find('.listmethod').text();
+                    var sub = $(this).closest('.url_wrapper_wrap');
+	                url = sub.find('.listurl').text();
+	                type = sub.find('.listtype').text();
+	                method = sub.find('.listmethod').text();
 	                console.log(url);
 	                console.log("not box");
 	                $('#i_name').val(name);
@@ -236,7 +236,7 @@ var parser = (function() {
 	              $(this).modal();
 	              return false;
 	            };
-	            
+	            //.off('click')
 	            $('.ers a[data-modal]').off('click').on('click', wasClicked);
         };
 

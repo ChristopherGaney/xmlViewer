@@ -113,7 +113,7 @@ func adder_handler(w http.ResponseWriter, r map[string]string) *appError {
 func deleter_handler(w http.ResponseWriter, r map[string]string) *appError {
      jsonMap := r
      log.Println("in deleter")
-    log.Println(jsonMap)
+      log.Println(jsonMap["req"])
 
       sqlStatement := `
         DELETE FROM media_outlets
@@ -132,27 +132,27 @@ func deleter_handler(w http.ResponseWriter, r map[string]string) *appError {
             statement = sqlStatement2
             vars = jsonMap["url"]
         }
-
-        res, serr := db.Exec(statement, vars)
+          log.Println(vars)
+        res, err := db.Exec(statement, vars)
          
-          if serr != nil { 
-            log.Println("api_handler Error")
-            return &appError{serr, "resource not found", 500}                                         
-        }
-        log.Println(res)
-        count, perr := res.RowsAffected()
-        if perr != nil { 
-            log.Println("api_handler Error")
-            return &appError{perr, "resource not found", 500}                                         
-        }
-        log.Println("New record ID is:", count)
+          if err, ok := err.(*pq.Error); ok {
+                log.Println("deleter_handler, db.Exec error:", err.Code.Name())
+                return &appError{err, err.Code.Name(), 500}
+              }
+        
+        count, err := res.RowsAffected()
+        if err, ok := err.(*pq.Error); ok {
+              log.Println("deleter_handler, RowsAffected error:", err.Code.Name())
+              return &appError{err, err.Code.Name(), 500}
+          }
+        log.Println("rows affected count:", count)
 
         news_map := make(map[string]int64)
         news_map["count"] = count
 
     w.Header().Set("Content-Type", "application/json")             
   
-    err := json.NewEncoder(w).Encode(news_map)                          
+    err = json.NewEncoder(w).Encode(news_map)                          
     if err != nil { 
         log.Println("api_handler Error")
         return &appError{err, "resource not found", 500}                                         
@@ -172,27 +172,27 @@ func modify_handler(w http.ResponseWriter, r map[string]string) *appError {
       SET type = $2, method = $3
       WHERE  url = $1;`
 
-      res, serr := db.Exec(sqlStatement, 
+      res, err := db.Exec(sqlStatement, 
                             jsonMap["url"],
                             jsonMap["type"], 
                             jsonMap["method"])
          
-          if serr != nil { 
-            log.Println("api_handler Error")
-            return &appError{serr, "resource not found", 500}                                         
-        }
-         count, perr := res.RowsAffected()
-         if perr != nil { 
-            log.Println("api_handler Error")
-            return &appError{perr, "resource not found", 500}                                         
-        }
+          if err, ok := err.(*pq.Error); ok {
+                log.Println("modify_handler, db.Exec error:", err.Code.Name())
+                return &appError{err, err.Code.Name(), 500}
+          }
+         count, err := res.RowsAffected()
+         if err, ok := err.(*pq.Error); ok {
+                log.Println("modify_handler, RowsAffected error:", err.Code.Name())
+                return &appError{err, err.Code.Name(), 500}
+          }
 
         news_map := make(map[string]int64)
         news_map["count"] = count
 
     w.Header().Set("Content-Type", "application/json")             
   
-    err := json.NewEncoder(w).Encode(news_map)                          
+    err = json.NewEncoder(w).Encode(news_map)                          
     if err != nil { 
         log.Println("api_handler Error")
         return &appError{err, "resource not found", 500}                                         
@@ -220,27 +220,27 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
    if string(key) == "bigList" {
 
         rows, err := db.Query("SELECT COUNT (*) FROM media_outlets")
-        if err != nil {
-            log.Println("api_handler Error")
-              return &appError{err, "resource not found", 500}
-        }
+        if err, ok := err.(*pq.Error); ok {
+                log.Println("list_handler, db.Query(SELECT COUNT) error:", err.Code.Name())
+                return &appError{err, err.Code.Name(), 500}
+          }
         defer rows.Close()
 
         count := 0
         for rows.Next() {
 
           err:= rows.Scan(&count)
-          if err != nil {
-            log.Println("api_handler Error")
-              return &appError{err, "resource not found", 500}
+          if err, ok := err.(*pq.Error); ok {
+                log.Println("list_handler, rows.Scan error:", err.Code.Name())
+                return &appError{err, err.Code.Name(), 500}
           }
         }
 
         rows, err = db.Query("SELECT name FROM media_outlets")
-        if err != nil {
-            log.Println("api_handler Error")
-              return &appError{err, "resource not found", 500}
-        }
+        if err, ok := err.(*pq.Error); ok {
+                log.Println("list_handler, db.Query(SELECT name) error:", err.Code.Name())
+                return &appError{err, err.Code.Name(), 500}
+          }
         log.Println(count)
 
         i := 0
@@ -257,19 +257,13 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
 
           err = rows.Scan(&name)
 
-          if err != nil {
-                log.Println("api_handler Error")
-              return &appError{err, "resource not found", 500}
+          if err, ok := err.(*pq.Error); ok {
+                log.Println("list_handler, rows.Scan error:", err.Code.Name())
+                return &appError{err, err.Code.Name(), 500}
           }
           
           jsonSlice[i] = name
           i++
-        }
-
-        err = rows.Err()
-        if err != nil {
-           log.Println("api_handler Error")
-              return &appError{err, "resource not found", 500}
         }
         
         log.Println(jsonSlice)
@@ -277,10 +271,10 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
             //log.Println("name: ", nm)
           list := medias{}
             rows, err = db.Query("SELECT * FROM outlet_urls WHERE mo_id = $1", nm)
-            if err != nil {
-                log.Println("api_handler Error")
-                  return &appError{err, "resource not found", 500}
-            }
+            if err, ok := err.(*pq.Error); ok {
+                log.Println("list_handler, db.Query(SELECT * outlet_urls error:", err.Code.Name())
+                return &appError{err, err.Code.Name(), 500}
+          }
 
               for rows.Next() {
                 ou := outlet_urls{}
@@ -291,10 +285,10 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
                   &ou.Type,
                   &ou.Method);
                
-                if err != nil { 
-                  log.Println("api_handler Error")
-                  return &appError{err, "resource not found", 500}                                         
-                }
+                if err, ok := err.(*pq.Error); ok {
+                    log.Println("list_handler, rows.Scan outlet_urls error:", err.Code.Name())
+                    return &appError{err, err.Code.Name(), 500}
+              }
 
                 if ou.Mo_id != "" {
                   list.Urls = append(list.Urls, ou)

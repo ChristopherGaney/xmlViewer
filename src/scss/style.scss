@@ -181,8 +181,14 @@ header {
             }
             .list_wrapper {
                 //border-top: 1px solid #414647;
+                .url_wrapper_wrap.even {
+                    background: #F2E8E9;
+                }
+                .url_wrapper_wrap.odd {
+                    background: #E8EBF2;
+                }
                 a {
-                    color: #757E82;
+                    color: #444;//#757E82;
                     text-decoration: none;
                     &:hover {
                         color: #9CA7AB;
