@@ -5,7 +5,7 @@ package main
 import (
 	"log"
 	"net/http"
-   "reflect"
+   //"reflect"
     "encoding/json"
     "github.com/lib/pq"
 )
@@ -45,7 +45,7 @@ func adder_handler(w http.ResponseWriter, r map[string]string) *appError {
     rows, err := db.Query(sqlCheck, jsonMap["name"])
 
     if err, ok := err.(*pq.Error); ok {
-      log.Println("adder_handler, sqlCheck error:", err.Code.Name())
+      log.Println("adder_handler, db.Query sqlCheck error:", err.Code.Name())
       return &appError{err, err.Code.Name(), 500}
     }
 
@@ -53,7 +53,7 @@ func adder_handler(w http.ResponseWriter, r map[string]string) *appError {
      for rows.Next() {
           err = rows.Scan(&res)
           if err, ok := err.(*pq.Error); ok {
-            log.Println("adder_handler, rows.Next error:", err.Code.Name())
+            log.Println("adder_handler, sqlCheck rows.Next error:", err.Code.Name())
             return &appError{err, err.Code.Name(), 500}
           }
         }
@@ -75,7 +75,7 @@ func adder_handler(w http.ResponseWriter, r map[string]string) *appError {
         if(res == "false") {
             err = db.QueryRow(sqlStatement, jsonMap["name"]).Scan(&name)
             if err, ok := err.(*pq.Error); ok {
-              log.Println("adder_handler, rows.Next error:", err.Code.Name())
+              log.Println("adder_handler, db.QueryRow sqlStatement error:", err.Code.Name())
               return &appError{err, err.Code.Name(), 500}
             }
           log.Println("New record ID is:", name)
@@ -87,24 +87,24 @@ func adder_handler(w http.ResponseWriter, r map[string]string) *appError {
                                     jsonMap["type"], 
                                     jsonMap["method"]).Scan(&url)
               if err, ok := err.(*pq.Error); ok {
-                log.Println("adder_handler, rows.Next error:", err.Code.Name())
+                log.Println("adder_handler, db.QueryRow sqlStatement2 error:", err.Code.Name())
                 return &appError{err, err.Code.Name(), 500}
               }
             log.Println("New record ID is:", url)
           }
 
-        news_map := make(map[string]string)
-        news_map["name"] = name
+        msg_map := make(map[string]string)
+        msg_map["name"] = name
         if(jsonMap["url"] != "") {
-          news_map["url"] = url
+          msg_map["url"] = url
         }
 
     w.Header().Set("Content-Type", "application/json")             
   
-    err = json.NewEncoder(w).Encode(news_map)                          
+    err = json.NewEncoder(w).Encode(msg_map)                          
     if err != nil { 
-        log.Println("api_handler Error")
-        return &appError{err, "resource not found", 500}                                         
+        log.Println("adder_handler json.NewEncoder Error")
+        return &appError{err, "handler error", 500}                                         
     }
     
     return nil
@@ -147,15 +147,15 @@ func deleter_handler(w http.ResponseWriter, r map[string]string) *appError {
           }
         log.Println("rows affected count:", count)
 
-        news_map := make(map[string]int64)
-        news_map["count"] = count
+        msg_map := make(map[string]int64)
+        msg_map["count"] = count
 
     w.Header().Set("Content-Type", "application/json")             
   
-    err = json.NewEncoder(w).Encode(news_map)                          
+    err = json.NewEncoder(w).Encode(msg_map)                          
     if err != nil { 
-        log.Println("api_handler Error")
-        return &appError{err, "resource not found", 500}                                         
+        log.Println("deleter_handler json.NewEncoder Error")
+        return &appError{err, "handler error", 500}                                         
     }
     
     return nil
@@ -187,15 +187,15 @@ func modify_handler(w http.ResponseWriter, r map[string]string) *appError {
                 return &appError{err, err.Code.Name(), 500}
           }
 
-        news_map := make(map[string]int64)
-        news_map["count"] = count
+        msg_map := make(map[string]int64)
+        msg_map["count"] = count
 
     w.Header().Set("Content-Type", "application/json")             
   
-    err = json.NewEncoder(w).Encode(news_map)                          
+    err = json.NewEncoder(w).Encode(msg_map)                          
     if err != nil { 
-        log.Println("api_handler Error")
-        return &appError{err, "resource not found", 500}                                         
+        log.Println("modify_handler json.NewEncoder Error")
+        return &appError{err, "handler error", 500}                                         
     }
     
     return nil
@@ -205,7 +205,6 @@ func modify_handler(w http.ResponseWriter, r map[string]string) *appError {
 func list_handler(w http.ResponseWriter, r *http.Request) *appError {
    pack := biglist{}
    
-
     keys, ok := r.URL.Query()["list"]
     
     if !ok || len(keys[0]) < 1 {
@@ -258,7 +257,7 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
           err = rows.Scan(&name)
 
           if err, ok := err.(*pq.Error); ok {
-                log.Println("list_handler, rows.Scan error:", err.Code.Name())
+                log.Println("list_handler, rows.Scan name error:", err.Code.Name())
                 return &appError{err, err.Code.Name(), 500}
           }
           
@@ -298,13 +297,13 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
               pack.Items = append(pack.Items, list)
         }
 
-        log.Println(reflect.TypeOf(pack))
+        //log.Println(reflect.TypeOf(pack))
          w.Header().Set("Content-Type", "application/json")             
   
           err = json.NewEncoder(w).Encode(pack)                          
           if err != nil { 
             log.Println("api_handler Error")
-            return &appError{err, "resource not found", 500}                                         
+            return &appError{err, "handler errror", 500}                                         
           }
       }
       return nil

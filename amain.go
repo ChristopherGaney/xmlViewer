@@ -72,7 +72,7 @@ func (fn templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
         log.Println(e.Error)
         log.Println(e.Message, e.Code)
         log.Println("Executing 404 template")
-        err:= tmp.ExecuteTemplate(w, "404.html", "Testing the Template" )
+        err:= tmp.ExecuteTemplate(w, "404.html", "template not found" )
         if err == nil  {
             log.Println("404 template executed")
         }
@@ -95,6 +95,7 @@ func logging(next http.Handler) http.Handler {
     }()
 
     next.ServeHTTP(w, r)
+    
   })
 }
 
@@ -108,7 +109,7 @@ func index_handler(w http.ResponseWriter, r *http.Request) *appError {
 }
 
 func app_handler(w http.ResponseWriter, r *http.Request) *appError {
-   err := tmp.ExecuteTemplate(w, "appbase", "Building the Template:" )
+   err := tmp.ExecuteTemplate(w, "appbase", "This is Scraper" )
     if err != nil {
         log.Println("app_handler Error")
         return &appError{err, "template not found", 500}
@@ -167,13 +168,25 @@ func api_handler(w http.ResponseWriter, r *http.Request) *appError {
         method := jsonMap["method"]
         if method == "flat-xml" {
             log.Println("method: flat-xml method")
-            flat_xml_handler(w, jsonMap)
+            e := flat_xml_handler(w, jsonMap)
+            if e != nil {
+                log.Println("api_handler, flat_xml() Error")
+                return &appError{e.Error, e.Message, e.Code}
+            }
         } else if method == "deep-xml" {
             log.Println("method: deep-xml method")
-            deep_xml_handler(w, jsonMap)
+            e := deep_xml_handler(w, jsonMap)
+            if e != nil {
+                log.Println("api_handler, deep_xml() Error")
+                return &appError{e.Error, e.Message, e.Code}
+            }
         } else {
             log.Println("method: raw-xml method")
-            raw_xml_handler(w, jsonMap)
+            e := raw_xml_handler(w, jsonMap)
+            if e != nil {
+                log.Println("api_handler, raw_xml() Error")
+                return &appError{e.Error, e.Message, e.Code}
+            }
         }
     }
    
@@ -209,28 +222,28 @@ func items_handler(w http.ResponseWriter, r *http.Request) *appError {
             log.Println("method: add")
             e := adder_handler(w, jsonMap)
             if e != nil {
-                log.Println("items_handler, adder Error")
+                log.Println("items_handler, adder() Error")
                 return &appError{e.Error, e.Message, e.Code}
             }
         } else if req == "del-cp" {
             log.Println("method: del-cp")
             e := deleter_handler(w, jsonMap)
             if e != nil {
-                log.Println("items_handler, del-cp Error")
+                log.Println("items_handler, del-cp() Error")
                 return &appError{e.Error, e.Message, e.Code}
             }
         } else if req == "del-url" {
             log.Println("method: del-url")
             e := deleter_handler(w, jsonMap)
             if e != nil {
-                log.Println("items_handler, del-url Error")
+                log.Println("items_handler, del-url() Error")
                 return &appError{e.Error, e.Message, e.Code}
             }
         } else if req == "modify" {
             log.Println("method: modify")
             e := modify_handler(w, jsonMap)
             if e != nil {
-                log.Println("items_handler, modify Error")
+                log.Println("items_handler, modify() Error")
                 return &appError{e.Error, e.Message, e.Code}
             }
         }
@@ -277,10 +290,9 @@ func main() {
     r.Handle("/poster", logging(resourceHandler(api_handler))).Methods("POST")
     r.Handle("/lister", logging(resourceHandler(list_handler))).Methods("GET")
     r.Handle("/items", logging(resourceHandler(items_handler))).Methods("POST")
-    r.Handle("/parse", logging(templateHandler(Parse_handler)))
-    r.Handle("/deep", logging(templateHandler(Deep_handler)))
+    //r.Handle("/parse", logging(templateHandler(Parse_handler)))
+    //r.Handle("/deep", logging(templateHandler(Deep_handler)))
     r.Handle("/test", logging(templateHandler(test_handler)))
-    //http.HandlerFunc
 
 	http.ListenAndServe(":8080", handlers.CORS(handlers.AllowedMethods(methods), handlers.AllowedHeaders(headers), corsObj)(r))
 }

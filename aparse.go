@@ -59,9 +59,17 @@ func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
     var url = r["url"]
     log.Println(url)
     // https://www.washingtonpost.com/news-business-sitemap.xml
-	resp, _ := http.Get(url)
+	resp, err := http.Get(url)
+    if err != nil {
+        log.Println("flat_xml_handler http.Get Error")
+        return &appError{err, "bad url error", 500}
+      }
 	bytes, _ := ioutil.ReadAll(resp.Body)
-	xml.Unmarshal(bytes, &s)
+	err = xml.Unmarshal(bytes, &s)
+    if err != nil {
+        log.Println("flat_xml_handler json.Unmarshal Error")
+        return &appError{err, "resource error", 500}
+      }
     news_map := make(map[int]ApiMap)
 
     for idx, _ := range s.Locations {
@@ -70,16 +78,12 @@ func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
 
     w.Header().Set("Content-Type", "application/json")             
   
-    err := json.NewEncoder(w).Encode(news_map)                          
+    err = json.NewEncoder(w).Encode(news_map)                          
       if err != nil { 
-        log.Println("api_handler Error")
-        return &appError{err, "resource not found", 500}                                         
+        log.Println("flat_xml_handler json.NewEncoder Error")
+        return &appError{err, "handler error", 500}                                         
       }
-   /* err := tmp.ExecuteTemplate(w, "deepParse.html", news_map)
-      if err != nil {
-        log.Println("Parse_handler Error")
-        return &appError{err, "template not found", 500}
-      } */
+   
     return nil
 }
 

@@ -23,6 +23,11 @@ var viewer = (function() {
                items += '<textarea style="width: 100%; min-height: 500px;">' + result[0] + '</textarea>';
             }
             display.html(items);
+
+            $('#fancytable').DataTable({
+                "searching": true
+            });
+      
         },
         displayHTML: function(result) {
 

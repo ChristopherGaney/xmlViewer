@@ -134,15 +134,37 @@ header {
                 display: table;
                 clear: both;
             }
-            .rsource {
+            .rsource.redata {
                 width: 50%;
                 display: inline-block;
                 float: left;
                text-align: left;
+                input,
                 label {
-                   
+                   cursor: pointer;
                 }
-                
+            }
+            .rsource.remeth {
+                width: 100%;
+                .imp_contain {
+                    width: 100%;
+                    display: block;
+                   text-align: left;
+                   overflow: auto;
+                    input,
+                    label {
+                        display: inline-block;
+                        float: left;
+                       cursor: pointer;
+                    }
+                    label {
+                        width: 30%;
+                    }
+                    input {
+                        width: 30%;
+                        margin-top: .75rem;
+                    }
+                }
             }
         }
         .submit_wrap {
@@ -158,9 +180,29 @@ header {
          height: 100%;
         .table_wrap {
             border: 8px solid #757E82;
-            padding: 2.5rem;
+            padding: 1.2rem 2.5rem 2.5rem 2.5rem;
             background: #fff;
             min-height: 500px;
+            .dataTables_wrapper {
+                .dataTables_length {
+                    label {
+                        margin-bottom: 0;
+                        select {
+                            margin-bottom: 1rem;
+                            height: 28px;
+                            padding-top: 3.3px;
+                        }
+                    }
+                }
+                .dataTables_filter {
+                    label {
+                        margin-bottom: 0;
+                        input {
+                            margin-bottom: 0rem;
+                        }
+                    }
+                }
+            }
             .display {
                a {
                     color: $header-blue;
@@ -180,12 +222,19 @@ header {
                 min-height: 500px;
             }
             .list_wrapper {
-                //border-top: 1px solid #414647;
+
+                .url_wrapper_wrap {
+                    margin-bottom: .5rem;
+                    border-top: 1px solid #ABAEAF;
+                }
+                div:nth-child(2) {
+                    border-top: none;
+                }
                 .url_wrapper_wrap.even {
-                    background: #F2E8E9;
+                    background: #ffffff;
                 }
                 .url_wrapper_wrap.odd {
-                    background: #E8EBF2;
+                    background: #F2F1F1;
                 }
                 a {
                     color: #444;//#757E82;
@@ -199,21 +248,21 @@ header {
                 }
                 .name_row {
                     
-                    border: 1px solid #414647;
+                    border: 1px solid #ABAEAF;
                     margin-top: 2rem;
                     background: #e3e3e3;
                 }
                 .url_row {
 
                     
-                    border-left: 1px solid #414647;
-                    border-right: 1px solid #414647;
-                    border-bottom: 1px solid #414647;
+                    border-left: 1px solid #ABAEAF;
+                    border-right: 1px solid #ABAEAF;
+                    border-bottom: 1px solid #ABAEAF;
                 }
                 .meta_row {
-                    border-left: 1px solid #414647;
-                    border-right: 1px solid #414647;
-                    border-bottom: 1px solid #414647;
+                    border-left: 1px solid #ABAEAF;
+                    border-right: 1px solid #ABAEAF;
+                    border-bottom: 1px solid #ABAEAF;
                     .eight,
                     .four {
                         
@@ -227,7 +276,10 @@ header {
                             border-radius: 2px;
                             font-size: 1rem;
                             &:first-child {
-                                margin-right: 1rem;
+                                //margin-right: 1rem;
+                            }
+                            &:hover {
+                                background-color: $background;
                             }
                         }
                         span {
