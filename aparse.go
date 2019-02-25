@@ -6,8 +6,8 @@ import (
     "encoding/xml"
     "encoding/json"
     "log"
-    "os"
-    "fmt"
+   // "os"
+    //"fmt"
     "path/filepath"
     "time"
 )
@@ -92,9 +92,17 @@ func deep_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
     var url = r["url"]
     log.Println(url)
     //https://www.washingtonpost.com/news-sitemap-index.xml
-    resp, _ := http.Get(url)
+    resp, err := http.Get(url)
+    if err != nil {
+        log.Println("deep_xml_handler http.Get Error")
+        return &appError{err, "bad url error", 500}
+      }
     bytes, _ := ioutil.ReadAll(resp.Body)
-    xml.Unmarshal(bytes, &s)
+    err = xml.Unmarshal(bytes, &s)
+    if err != nil {
+        log.Println("deep_xml_handler ioutil.ReadAll Error")
+        return &appError{err, "resource error", 500}
+      }
     news_map := make(map[int]ApiMap)
     resp.Body.Close()
     queue := make(chan News, 30)
@@ -114,10 +122,10 @@ func deep_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
 
     w.Header().Set("Content-Type", "application/json")             
   
-    err := json.NewEncoder(w).Encode(news_map)                          
+    err = json.NewEncoder(w).Encode(news_map)                          
       if err != nil { 
-        log.Println("api_handler Error")
-        return &appError{err, "resource not found", 500}                                         
+        log.Println("deep_xml_handler json.NewEncoder Error")
+        return &appError{err, "handler error", 500}                                         
       }
     return nil
 }
@@ -135,14 +143,31 @@ func raw_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
             Timeout: 10 * time.Second,
         }
         request, _ := http.NewRequest("Get", url, nil)
+        
         request.Header.Add("Accept-Encoding", "gzip")
-        resp, _ := client.Do(request)
+        resp, err := client.Do(request)
+        if err != nil {
+            log.Println("raw_xml_handler client.Do(Request(gz)) Error")
+            return &appError{err, "bad url error", 500}
+          }
         resp.Body.Close()
-        bytes, _ := ioutil.ReadAll(resp.Body)
+        bytes, err := ioutil.ReadAll(resp.Body)
+        if err != nil {
+            log.Println("raw_xml_handler ioutil.ReadAll(gz) Error")
+            return &appError{err, "resource error", 500}
+          }
         string_body = string(bytes)
     } else if extension == ".xml" {
-        resp, _ := http.Get(url)
+        resp, err := http.Get(url)
+        if err != nil {
+            log.Println("raw_xml_handler http.Get Error")
+            return &appError{err, "bad url error", 500}
+          }
         bytes, _ := ioutil.ReadAll(resp.Body)
+        if err != nil {
+            log.Println("raw_xml_handler ioutil.ReadAll(get) Error")
+            return &appError{err, "resource error", 500}
+          }
         resp.Body.Close()
         string_body = string(bytes)
     }
@@ -155,14 +180,14 @@ func raw_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
   
     err := json.NewEncoder(w).Encode(news_map)                          
       if err != nil { 
-        log.Println("api_handler Error")
-        return &appError{err, "resource not found", 500}                                         
+        log.Println("raw_xml_handler json.NewEncoder Error")
+        return &appError{err, "handler error", 500}                                         
       }
    
     return nil
 }
 
-func raw_gzip_handler(w http.ResponseWriter, r map[string]string) *appError {
+/*func raw_gzip_handler(w http.ResponseWriter, r map[string]string) *appError {
     var url = r["url"]
     log.Println("raw-xml-handler:")
     log.Println(url)
@@ -256,4 +281,4 @@ func Deep_handler(w http.ResponseWriter, r *http.Request) *appError {
         return &appError{err, "template not found", 500}
       } 
     return nil
-}
+}*/
