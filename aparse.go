@@ -8,6 +8,7 @@ import (
     "log"
    // "os"
     //"fmt"
+    "github.com/lib/pq"
     "path/filepath"
     "time"
 )
@@ -54,12 +55,73 @@ type Urlindex struct {
 	Locations []string `xml:"url>loc"`
 }
 
+func getXml(u string) (*http.Response, error) {
+    var resp *http.Response
+    urlCheck := `select exists(select 1 from http_cache where url = $1)`
+    rows, err := db.Query(urlCheck, u)
+    if err, ok := err.(*pq.Error); ok {
+      log.Println("getXml, db.Query urlCheck error:", err.Code.Name())
+      //return &appError{err, err.Code.Name(), 500}
+    }
+    defer rows.Close()
+
+     res := ""
+     for rows.Next() {
+          err = rows.Scan(&res)
+          if err, ok := err.(*pq.Error); ok {
+            log.Println("adder_handler, sqlCheck rows.Next error:", err.Code.Name())
+            //return &appError{err, err.Code.Name(), 500}
+          }
+        }
+    log.Println(res)
+
+     sqlStatement := `
+        INSERT INTO http_cache (time, url, data)
+        VALUES ($1, $2, $3)
+        RETURNING url`
+
+     if(res == "false") {
+            url := ""
+            resp, err = http.Get(u)
+            log.Println("got it, maybe")
+            if err != nil {
+                log.Println("getXml http.Get Error")
+              }
+            err = db.QueryRow(sqlStatement, time.Now(), u, resp).Scan(&url)
+            if err, ok := err.(*pq.Error); ok {
+              log.Println("adder_handler, db.QueryRow sqlStatement error:", err.Code.Name())
+              //return &appError{err, err.Code.Name(), 500}
+            }
+          log.Println("added xml record for:", url)
+    } else if(res == "true") {
+        rows, err := db.Query("SELECT * FROM http_cache WHERE url = $1", u)
+        if err, ok := err.(*pq.Error); ok {
+                log.Println("list_handler, db.Query(SELECT COUNT) error:", err.Code.Name())
+                //return &appError{err, err.Code.Name(), 500}
+          }
+        
+        for rows.Next() {
+
+          err = rows.Scan(&resp)
+          if err, ok := err.(*pq.Error); ok {
+                log.Println("list_handler, rows.Scan error:", err.Code.Name())
+                //return &appError{err, err.Code.Name(), 500}
+          }
+        }
+
+    }
+    return resp, err
+}
+
 func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
     var s Urlindex
     var url = r["url"]
     log.Println(url)
+
+    resp, err := getXml(url)
+    log.Println(resp)
     // https://www.washingtonpost.com/news-business-sitemap.xml
-	resp, err := http.Get(url)
+	//resp, err := http.Get(url)
     if err != nil {
         log.Println("flat_xml_handler http.Get Error")
         return &appError{err, "bad url error", 500}
