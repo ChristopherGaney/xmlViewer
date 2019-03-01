@@ -80,36 +80,53 @@ func getXml(u string) (*http.Response, error) {
         VALUES ($1, $2, $3)
         RETURNING url`
 
-     if(res == "false") {
-            url := ""
-            resp, err = http.Get(u)
+
+        if(res == "true") {
+
+            rows, err := db.Query("SELECT time FROM http_cache WHERE url = $1", u)
+              if err, ok := err.(*pq.Error); ok {
+                      log.Println("getXml, db.Query(SELECT time) error:", err.Code.Name())
+                      //return &appError{err, err.Code.Name(), 500}
+                }
+
+              t := ""
+              for rows.Next() {
+
+                err = rows.Scan(&t)
+                if err, ok := err.(*pq.Error); ok {
+                      log.Println("getXml, rows.Scan(time) error:", err.Code.Name())
+                      //return &appError{err, err.Code.Name(), 500}
+                }
+              }
+              
+             
+             log.Println(t)
+              ftime, err := time.Parse(time.RFC3339, t)
+                log.Println(ftime)
+              
+              t_now := time.Now()
+              
+              log.Println(t_now)
+              diff := t_now.Sub(ftime)
+              log.Println("Lifespan is %+v", diff)
+
+        } else if(res == "false") {
+             url := ""
+            resp, err := http.Get(u)
             log.Println("got it, maybe")
             if err != nil {
                 log.Println("getXml http.Get Error")
               }
-            err = db.QueryRow(sqlStatement, time.Now(), u, resp).Scan(&url)
+            data, _ := ioutil.ReadAll(resp.Body)
+            err = db.QueryRow(sqlStatement, time.Now(), u, data).Scan(&url)
             if err, ok := err.(*pq.Error); ok {
               log.Println("adder_handler, db.QueryRow sqlStatement error:", err.Code.Name())
               //return &appError{err, err.Code.Name(), 500}
             }
           log.Println("added xml record for:", url)
-    } else if(res == "true") {
-        rows, err := db.Query("SELECT * FROM http_cache WHERE url = $1", u)
-        if err, ok := err.(*pq.Error); ok {
-                log.Println("list_handler, db.Query(SELECT COUNT) error:", err.Code.Name())
-                //return &appError{err, err.Code.Name(), 500}
-          }
-        
-        for rows.Next() {
-
-          err = rows.Scan(&resp)
-          if err, ok := err.(*pq.Error); ok {
-                log.Println("list_handler, rows.Scan error:", err.Code.Name())
-                //return &appError{err, err.Code.Name(), 500}
-          }
         }
 
-    }
+   
     return resp, err
 }
 
