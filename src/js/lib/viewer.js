@@ -1,11 +1,47 @@
+var ajax = require('./ajax.js');
+
 var viewer = (function() {
+    
+    var getData = function() {
+            var saveText = $('#save_text');
+            return saveText.val();
+        
+        };
 
        return {
+        
+        setSave: function() {
+            
+                var stuff = getData();
+                var url = $('#inp_url').val();
+                var req = 'save-xml';
+                console.log(stuff);
+                var params = {"req": req,
+                                "url": url,
+                                "data": stuff};
+
+                console.log('editing display');
+
+                ajax.sendRequest('/items', params, function (response) {
+                    var disPlay = $('#display_tb');
+                    var res = response.data;
+                    console.dir(res.code);
+                    console.log(res.message)
+                    if(res.code == 500) {
+                        disPlay.html("message: " + res.message + "<br>code: " + res.code);
+                    }
+                    else {
+
+                        disPlay.text("Go says: status ok");
+                    }
+                });
+               
+        },
        
         displayXML: function(result, params) {
             var display = $('#display_tb');
             var items = '';
-            
+            var check = 0;
             if(params.method === "flat-xml" || params.method === "deep-xml") {
                 items += '<table id="fancytable" class="display"><col width="35%"><col width="65%">' +
                         '<thead><tr><th>Title</th><th>Keywords</th></tr></thead><tbody>';
@@ -20,22 +56,30 @@ var viewer = (function() {
             }
             else if(params.method === "raw-xml") {
                 
-               items += '<textarea style="width: 100%; min-height: 500px;">' + result[0] + '</textarea>';
+               items += '<textarea id="save_text" style="width: 100%; min-height: 500px;">' + result[0] + '</textarea>';
+                check = 1;
             }
             display.html(items);
 
             $('#fancytable').DataTable({
                 "searching": true
             });
-      
+            if(check === 1) {
+                $('#save_display').on('click', viewer.setSave);
+                console.log($('#save_text').text());
+            }
+            else {
+                $('#save_display').off('click', viewer.setSave);
+            }
         },
+
         displayHTML: function(result) {
 
         },
         displayList: function(result, cb1, cb2) {
             var display = $('#display_tb');
             var items = '';
-
+            $('#save_display').off('click', viewer.setSave);
             items += '<div class="list_wrapper">';
                 
                $.each(result, function(i,v) {

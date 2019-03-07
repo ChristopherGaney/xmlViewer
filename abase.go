@@ -5,9 +5,10 @@ package main
 import (
 	"log"
 	"net/http"
-   //"reflect"
+  // "reflect"
     "encoding/json"
     "github.com/lib/pq"
+    "time"
 )
 
 type outlet_urls struct {
@@ -309,3 +310,88 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
       return nil
   }
         
+ func savexml_handler(w http.ResponseWriter, r map[string]string) *appError {
+  
+    jsonMap := r
+ 
+    log.Println(jsonMap)
+    
+    sqlCheck := `select exists(select 1 from http_cache where url = $1)`
+    rows, err := db.Query(sqlCheck, jsonMap["url"])
+
+    if err, ok := err.(*pq.Error); ok {
+      log.Println("savexml_handler, db.Query sqlCheck error:", err.Code.Name())
+      return &appError{err, err.Code.Name(), 500}
+    }
+
+    res := ""
+     for rows.Next() {
+          err = rows.Scan(&res)
+          if err, ok := err.(*pq.Error); ok {
+            log.Println("savexml, sqlCheck rows.Next error:", err.Code.Name())
+            return &appError{err, err.Code.Name(), 500}
+          }
+        }
+        log.Println(res)
+
+     sqlStatement := `
+        INSERT INTO http_cache (url, stamp, data)
+        VALUES ($1, $2, $3)
+        RETURNING url`
+      sqlStatement2 := `
+      UPDATE http_cache
+      SET stamp = $2, data = $3
+      WHERE  url = $1;`
+
+
+      
+        url := ""
+
+        if(res == "false") {
+          //st := string(jsonMap['data'])
+          log.Println(jsonMap)
+          //log.Println(reflect.TypeOf(jsonMap['data']))
+            err = db.QueryRow(sqlStatement, jsonMap["url"],
+                                    time.Now().Unix(),
+                                    jsonMap["data"]).Scan(&url)
+            if err, ok := err.(*pq.Error); ok {
+              log.Println("savexml, db.QueryRow sqlStatement error:", err.Code.Name())
+              return &appError{err, err.Code.Name(), 500}
+            }
+
+          log.Println("New record ID is:", url)
+
+        } else if(res == "true") {
+
+             log.Println("url not empty1")
+             res, err := db.Exec(sqlStatement2,
+                            jsonMap["url"],
+                            time.Now().Unix(),
+                            jsonMap["data"])
+         
+          if err, ok := err.(*pq.Error); ok {
+                log.Println("savexml_handler, db.Exec error:", err.Code.Name())
+                return &appError{err, err.Code.Name(), 500}
+          }
+         count, err := res.RowsAffected()
+         if err, ok := err.(*pq.Error); ok {
+                log.Println("savexml_handler, RowsAffected error:", err.Code.Name())
+                return &appError{err, err.Code.Name(), 500}
+          }
+          url = string(count)
+        }
+
+       
+        msg_map := make(map[string]string)
+        msg_map["url"] = url
+        
+    w.Header().Set("Content-Type", "application/json")             
+  
+    err = json.NewEncoder(w).Encode(msg_map)                          
+    if err != nil { 
+        log.Println("savexml json.NewEncoder Error")
+        return &appError{err, "handler error", 500}                                         
+    }
+    
+    return nil
+}

@@ -69,18 +69,19 @@ header {
         text-align: left;
     }
     .top_right {
-        padding: 3rem 1rem 1rem 0rem;
+        padding: 3rem 1rem 0rem 0rem;
         box-sizing: border-box;
         .url_inp {
             display: inline-block;
             width: 60%;
         }
+        
         .hidden-name,
         .hidden-id {
             display: none;
         }
         .top-rt-btns { 
-            padding-left: 1rem;
+            padding-left: 0rem;
             display: inline-block;
             width: 37%;
             .add-btn,
@@ -176,8 +177,21 @@ header {
     }
     .data_display {
         padding: 1.8rem 2.5rem 2rem 0;
-        margin-top: 1rem;
+        margin-top: 0;
          height: 100%;
+
+         .edit_save {
+           
+            button {
+                    margin-bottom: .4rem;
+                    padding: 0 .5rem;
+                    height: 1.5rem;
+                    line-height: 1.5rem;
+                }
+            .ed_display {
+                margin-right: .5rem;
+            }
+         }
         .table_wrap {
             border: 8px solid #757E82;
             padding: 1.2rem 2.5rem 2.5rem 2.5rem;
@@ -291,6 +305,9 @@ header {
                 }
 
             }
+        }
+        .table_wrap.eddy {
+            display: none;
         }
     }
 }

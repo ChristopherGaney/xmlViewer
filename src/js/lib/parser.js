@@ -45,11 +45,11 @@ var parser = (function() {
                     display.html("message: " + res.message + "<br>code: " + res.code);
                 }
                 else {
+
                     display.text("Go says: status ok");
                 }
             });
         };
-        
 
          // Handler for Sidebar Parser Inputs
         var handleRadios = (function() {
@@ -69,6 +69,8 @@ var parser = (function() {
                     tname = 'http_typ';
                 }
                 method = $('input[name=' + tname + ']:checked').val();
+                console.log('method: ' + method);
+
                 if(url !== '' && type !== '' && method !== '') {
                     makeRequest(url, type, method);
                 }
@@ -147,7 +149,7 @@ var parser = (function() {
                         "method": method};
                 e.preventDefault();
                 e.stopImmediatePropagation();
-
+                $('#save_display').off('click', viewer.setSave);
                 console.log("name: " + name + "url: " + url + "type: " + type + " method: " + method + " req: " + req);
                 // && url !== '' && type !== '' && method !== ''
                 // , url, type, method
@@ -320,7 +322,6 @@ var parser = (function() {
         	}
         };
        })();
-
     
 })();
 module.exports = parser;

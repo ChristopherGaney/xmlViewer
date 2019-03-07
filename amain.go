@@ -13,6 +13,7 @@ import (
     "sync"
     "github.com/gorilla/mux"
     "github.com/gorilla/handlers"
+    
 )
 
 const STATIC_URL string = "/static/"
@@ -246,6 +247,13 @@ func items_handler(w http.ResponseWriter, r *http.Request) *appError {
                 log.Println("items_handler, modify() Error")
                 return &appError{e.Error, e.Message, e.Code}
             }
+        } else if req == "save-xml" {
+            log.Println("method: save-xml")
+            e := savexml_handler(w, jsonMap)
+            if e != nil {
+                log.Println("items_handler, savexml() Error")
+                return &appError{e.Error, e.Message, e.Code}
+            }
         }
         
     return nil
@@ -280,6 +288,7 @@ func main() {
     }
     
     log.Println("Successfully connected!")
+
     corsObj:=handlers.AllowedOrigins([]string{"*"})
     methods := []string{"GET", "POST", "PUT", "DELETE"}
     headers := []string{"Content-Type"}

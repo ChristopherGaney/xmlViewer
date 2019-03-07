@@ -6,8 +6,8 @@ import (
     "encoding/xml"
     "encoding/json"
     "log"
-   // "os"
-    //"fmt"
+   //"strconv"
+    "reflect"
     "github.com/lib/pq"
     "path/filepath"
     "time"
@@ -69,27 +69,27 @@ func getXml(u string) (*http.Response, error) {
      for rows.Next() {
           err = rows.Scan(&res)
           if err, ok := err.(*pq.Error); ok {
-            log.Println("adder_handler, sqlCheck rows.Next error:", err.Code.Name())
+            log.Println("getXml, urlCheck rows.Next error:", err.Code.Name())
             //return &appError{err, err.Code.Name(), 500}
           }
         }
     log.Println(res)
 
-     sqlStatement := `
-        INSERT INTO http_cache (time, url, data)
-        VALUES ($1, $2, $3)
-        RETURNING url`
+    /* sqlStatement := `
+        INSERT INTO http_cache (stamp, url)
+        VALUES ($1, $2)
+        RETURNING url`*/
 
 
         if(res == "true") {
 
-            rows, err := db.Query("SELECT time FROM http_cache WHERE url = $1", u)
+            rows, err := db.Query("SELECT stamp FROM http_cache WHERE url = $1", u)
               if err, ok := err.(*pq.Error); ok {
-                      log.Println("getXml, db.Query(SELECT time) error:", err.Code.Name())
+                      log.Println("getXml, db.Query(SELECT stamp) error:", err.Code.Name())
                       //return &appError{err, err.Code.Name(), 500}
                 }
 
-              t := ""
+              t := 0
               for rows.Next() {
 
                 err = rows.Scan(&t)
@@ -101,29 +101,35 @@ func getXml(u string) (*http.Response, error) {
               
              
              log.Println(t)
-              ftime, err := time.Parse(time.RFC3339, t)
-                log.Println(ftime)
-              
+             // ftime, err := time.Parse(time.RFC3339, t)
+                //log.Println(ftime)
+              //t_then, _ := strconv.ParseInt("1551625915", 10, 64)
+              tm := time.Unix(int64(t), 0)
+              log.Println(reflect.TypeOf(tm))
+              log.Println(tm)
               t_now := time.Now()
-              
-              log.Println(t_now)
-              diff := t_now.Sub(ftime)
-              log.Println("Lifespan is %+v", diff)
+             // log.Println(reflect.TypeOf(t_now))
+              //log.Println(t_now)
+             diff := t_now.Sub(tm)
+            log.Println("Lifespan is %+v", int(diff.Minutes()))
 
         } else if(res == "false") {
-             url := ""
-            resp, err := http.Get(u)
+           // url := ""
+            resp, err = http.Get(u)
             log.Println("got it, maybe")
             if err != nil {
                 log.Println("getXml http.Get Error")
               }
-            data, _ := ioutil.ReadAll(resp.Body)
-            err = db.QueryRow(sqlStatement, time.Now(), u, data).Scan(&url)
+           /* data, _ := ioutil.ReadAll(resp.Body)
+            log.Println(data)
+            string_body := string(data)
+            log.Println(string_body)*/
+           /* err = db.QueryRow(sqlStatement, time.Now().Unix(), u).Scan(&url)
             if err, ok := err.(*pq.Error); ok {
               log.Println("adder_handler, db.QueryRow sqlStatement error:", err.Code.Name())
               //return &appError{err, err.Code.Name(), 500}
             }
-          log.Println("added xml record for:", url)
+          log.Println("added xml record for:", url)*/
         }
 
    
