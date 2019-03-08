@@ -198,7 +198,7 @@ func api_handler(w http.ResponseWriter, r *http.Request) *appError {
 func items_handler(w http.ResponseWriter, r *http.Request) *appError {
     
     jsonMap := map[string]string{}
-    log.Println(r)
+    //log.Println(r)
     b, m := ioutil.ReadAll(r.Body)
     log.Println(b)
     defer r.Body.Close()
@@ -209,13 +209,13 @@ func items_handler(w http.ResponseWriter, r *http.Request) *appError {
       } 
      
     m = json.Unmarshal(b, &jsonMap)
-    log.Println(m)
+    //log.Println(m)
     if m != nil {
         log.Println("items_handler json.Unmarshal Error")
         return &appError{m, "resource not found", 500}
       }
  
-    log.Println(jsonMap)
+    //log.Println(jsonMap)
 
     req := jsonMap["req"]
         log.Println(req)

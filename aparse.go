@@ -7,7 +7,7 @@ import (
     "encoding/json"
     "log"
    //"strconv"
-    "reflect"
+    //"reflect"
     "github.com/lib/pq"
     "path/filepath"
     "time"
@@ -57,11 +57,11 @@ type Urlindex struct {
 
 func getXml(u string) (*http.Response, error) {
     var resp *http.Response
+    e_var := 0
     urlCheck := `select exists(select 1 from http_cache where url = $1)`
     rows, err := db.Query(urlCheck, u)
     if err, ok := err.(*pq.Error); ok {
       log.Println("getXml, db.Query urlCheck error:", err.Code.Name())
-      //return &appError{err, err.Code.Name(), 500}
     }
     defer rows.Close()
 
@@ -70,23 +70,19 @@ func getXml(u string) (*http.Response, error) {
           err = rows.Scan(&res)
           if err, ok := err.(*pq.Error); ok {
             log.Println("getXml, urlCheck rows.Next error:", err.Code.Name())
-            //return &appError{err, err.Code.Name(), 500}
           }
         }
     log.Println(res)
 
-    /* sqlStatement := `
-        INSERT INTO http_cache (stamp, url)
-        VALUES ($1, $2)
-        RETURNING url`*/
-
+   sqlStatement := `
+        DELETE FROM http_cache
+        WHERE url = $1;`
 
         if(res == "true") {
 
             rows, err := db.Query("SELECT stamp FROM http_cache WHERE url = $1", u)
               if err, ok := err.(*pq.Error); ok {
                       log.Println("getXml, db.Query(SELECT stamp) error:", err.Code.Name())
-                      //return &appError{err, err.Code.Name(), 500}
                 }
 
               t := 0
@@ -95,44 +91,45 @@ func getXml(u string) (*http.Response, error) {
                 err = rows.Scan(&t)
                 if err, ok := err.(*pq.Error); ok {
                       log.Println("getXml, rows.Scan(time) error:", err.Code.Name())
-                      //return &appError{err, err.Code.Name(), 500}
                 }
               }
               
-             
-             log.Println(t)
-             // ftime, err := time.Parse(time.RFC3339, t)
-                //log.Println(ftime)
-              //t_then, _ := strconv.ParseInt("1551625915", 10, 64)
+              log.Println(t)
               tm := time.Unix(int64(t), 0)
-              log.Println(reflect.TypeOf(tm))
-              log.Println(tm)
+              
               t_now := time.Now()
-             // log.Println(reflect.TypeOf(t_now))
-              //log.Println(t_now)
-             diff := t_now.Sub(tm)
-            log.Println("Lifespan is %+v", int(diff.Minutes()))
-
-        } else if(res == "false") {
-           // url := ""
+             
+              diff := t_now.Sub(tm)
+              mins := int(diff.Minutes())
+              log.Println("Lifespan is %+v", mins)
+              
+              if(mins < 720) {
+                log.Println("less than 720")
+                // get data from db to set resp
+                // if error set e_var to 1
+                e_var = 1
+              } 
+        } 
+        if(res == "false" || e_var == 1) {
             resp, err = http.Get(u)
-            log.Println("got it, maybe")
+            log.Println("getting xml")
             if err != nil {
                 log.Println("getXml http.Get Error")
               }
-           /* data, _ := ioutil.ReadAll(resp.Body)
-            log.Println(data)
-            string_body := string(data)
-            log.Println(string_body)*/
-           /* err = db.QueryRow(sqlStatement, time.Now().Unix(), u).Scan(&url)
-            if err, ok := err.(*pq.Error); ok {
-              log.Println("adder_handler, db.QueryRow sqlStatement error:", err.Code.Name())
-              //return &appError{err, err.Code.Name(), 500}
+
+            if(e_var == 1) {
+              res, err := db.Exec(sqlStatement, u)
+                  if err, ok := err.(*pq.Error); ok {
+                        log.Println("getXml, db.Exec delete url error:", err.Code.Name())
+                      }
+                  count, err := res.RowsAffected()
+                  if err, ok := err.(*pq.Error); ok {
+                        log.Println("getXml, delete url RowsAffected error:", err.Code.Name())
+                    }
+                  log.Println("rows affected count:", count)
             }
-          log.Println("added xml record for:", url)*/
         }
 
-   
     return resp, err
 }
 
