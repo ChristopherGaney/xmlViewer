@@ -7,10 +7,11 @@ import (
     "encoding/json"
     "log"
    //"strconv"
-    "reflect"
+    //"reflect"
     "github.com/lib/pq"
     "path/filepath"
     "time"
+    "strings"
 )
 
 type Sitemapindex struct {
@@ -55,8 +56,8 @@ type Urlindex struct {
 	Locations []string `xml:"url>loc"`
 }
 
-func getXml(u string) ([]byte, error) {
-    var resp []byte//*http.Response
+func getXml(u string) (string, error) {
+    var resp string //*http.Response
     e_var := 0
     urlCheck := `select exists(select 1 from http_cache where url = $1)`
     rows, err := db.Query(urlCheck, u)
@@ -110,7 +111,7 @@ func getXml(u string) ([]byte, error) {
                       log.Println("getXml, db.Query(SELECT data http_cache error:", err.Code.Name())
                   }
 
-                  dats := ""
+                 dats := ""
                   for rows.Next() {
 
                      err = rows.Scan(&dats)
@@ -119,11 +120,12 @@ func getXml(u string) ([]byte, error) {
                           e_var = 1
                     }
                   }
-
-                  log.Println(reflect.TypeOf(dats)) 
-                  //log.Println(dats)
-                  resp := []byte(dats)
-                  log.Println(reflect.TypeOf(resp)) 
+                  log.Println("replacing the sign!")
+                  resp =  strings.Replace(dats, "&", "&amp;", -1)
+                 // log.Println(reflect.TypeOf(dats))
+                 // log.Println(dats)
+                 // resp := []byte(dats)
+                 // log.Println(reflect.TypeOf(resp)) 
                   //log.Println(resp)
                   
                    // e_var = 1
@@ -134,13 +136,14 @@ func getXml(u string) ([]byte, error) {
         if(res == "false" || e_var == 1) {
             rb, err := http.Get(u)
             log.Println("getting xml")
-            log.Println(reflect.TypeOf(rb))
+            //log.Println(reflect.TypeOf(rb))
             log.Println("printing rb")
-            log.Println(rb)
+           // log.Println(rb)
             if err != nil {
                 log.Println("getXml http.Get Error")
               }
-              resp, _ = ioutil.ReadAll(rb.Body)
+              temp, _ := ioutil.ReadAll(rb.Body)
+              resp = string(temp)
               //log.Println(reflect.TypeOf(resp)) 
             if(e_var == 1) {
               res, err := db.Exec(sqlStatement, u)
@@ -163,18 +166,23 @@ func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
     var url = r["url"]
     log.Println(url)
 
+
     resp, err := getXml(url)
     log.Println("back in flat handler")
     //log.Println(reflect.TypeOf(resp)) 
-    log.Println(string(resp))
+   
     // https://www.washingtonpost.com/news-business-sitemap.xml
 	//resp, err := http.Get(url)
     if err != nil {
         log.Println("flat_xml_handler http.Get Error")
         return &appError{err, "bad url error", 500}
       }
+
 	//bytes, _ := ioutil.ReadAll(resp.Body)
-	err = xml.Unmarshal([]byte(resp), &s)
+  
+  //string_body := string(bytes)
+  //log.Println(string_body)
+	err = xml.Unmarshal([]byte(resp), &s) //[]byte(resp)
     if err != nil {
         log.Println("flat_xml_handler xml.Unmarshal Error")
         return &appError{err, "resource error", 500}
