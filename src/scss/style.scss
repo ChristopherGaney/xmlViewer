@@ -179,18 +179,29 @@ header {
         padding: 1.8rem 2.5rem 2rem 0;
         margin-top: 0;
          height: 100%;
-
-         .edit_save {
-           
-            button {
-                    margin-bottom: .4rem;
-                    padding: 0 .5rem;
-                    height: 1.5rem;
-                    line-height: 1.5rem;
-                }
-            .ed_display {
-                margin-right: .5rem;
+         .display_btn_wrap {
+            display: block;
+            width: 100%;
+            &:after {
+                content: "";
+                clear: both;
+                display: table;
             }
+             .edit_save,
+             .edit_delete {
+               float: left;
+               padding-left: .1rem;
+                button {
+                        margin-bottom: .4rem;
+                        padding: 0;
+                        height: 2.4rem;
+                        line-height: 2.4rem;
+                        min-width: 85px;
+                    }
+             }
+             .edit_delete {
+                padding-left: 1.2rem;
+             }
          }
         .table_wrap {
             border: 8px solid #757E82;

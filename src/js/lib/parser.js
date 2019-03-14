@@ -229,7 +229,8 @@ var parser = (function() {
 	                type = sub.find('.listtype').text();
 	                method = sub.find('.listmethod').text();
 	                console.log(url);
-	                console.log("not box");
+
+	                //console.log("stuff: " + name + ' ' + url + ' ' + type + ' ' + method);
 	                $('#i_name').val(name);
 	                $('#i_url').val(url);
 	                $('#i_type').val(type);
@@ -258,12 +259,13 @@ var parser = (function() {
 	                var name, url, type, method, ptype, pmethod = '';
 	                //console.log('item edit clicked');
 	                var box = $(this).closest('.list_tables');
-	                id = box.find('.listid').text();
+                    var sub = $(this).closest('.url_wrapper_wrap');
 	                name = box.find('.listname').text();
-	                url = box.find('.listurl').text();
-	                type = box.find('.listtype').text();
-	                method = box.find('.listmethod').text();
-	                console.log(name + url +type + method);
+                    id = sub.find('.listid').text();
+	                url = sub.find('.listurl').text();
+	                type = sub.find('.listtype').text();
+	                method = sub.find('.listmethod').text();
+	                console.log("stuff: " + name + ' ' + url + ' ' + type + ' ' + method);
 	                console.log("not box");
 	                $('#hidden_id').val(id);
 	                $('#hidden_name').val(name);

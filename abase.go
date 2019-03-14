@@ -401,3 +401,38 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
     
     return nil
 }
+
+func delcache_handler(w http.ResponseWriter, r map[string]string) *appError {
+     jsonMap := r
+     log.Println("in del-xml-cache handler")
+
+      sqlStatement := `
+        DELETE FROM http_cache
+        WHERE url = $1;`
+
+    res, err := db.Exec(sqlStatement, jsonMap["url"])
+        if err, ok := err.(*pq.Error); ok {
+                log.Println("delcache_handler, db.Exec error:", err.Code.Name())
+                return &appError{err, err.Code.Name(), 500}
+             }
+        
+        count, err := res.RowsAffected()
+        if err, ok := err.(*pq.Error); ok {
+              log.Println("delcache_handler, RowsAffected error:", err.Code.Name())
+              return &appError{err, err.Code.Name(), 500}
+          }
+        log.Println("rows affected count:", count)
+
+        msg_map := make(map[string]int64)
+        msg_map["count"] = count
+
+    w.Header().Set("Content-Type", "application/json")             
+  
+    err = json.NewEncoder(w).Encode(msg_map)                          
+    if err != nil { 
+        log.Println("delcache_handler json.NewEncoder Error")
+        return &appError{err, "handler error", 500}                                         
+    }
+    
+    return nil
+}

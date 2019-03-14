@@ -7,22 +7,8 @@ var viewer = (function() {
             return saveText.val();
         
         };
-
-       return {
-        
-        setSave: function() {
-            
-                var stuff = getData();
-                var url = $('#inp_url').val();
-                var req = 'save-xml';
-                console.log(stuff);
-                var params = {"req": req,
-                                "url": url,
-                                "data": stuff};
-
-                console.log('editing display');
-
-                ajax.sendRequest('/items', params, function (response) {
+    var makeRequest = function(params) {
+        ajax.sendRequest('/items', params, function (response) {
                     var disPlay = $('#display_tb');
                     var res = response.data;
                     console.dir(res.code);
@@ -35,9 +21,32 @@ var viewer = (function() {
                         disPlay.text("Go says: status ok");
                     }
                 });
-               
-        },
-       
+    };
+
+       return {
+        
+        setSave: function() {
+                var stuff = getData();
+                var url = $('#inp_url').val();
+                var req = 'save-xml';
+                console.log(stuff);
+                var params = {"req": req,
+                                "url": url,
+                                "data": stuff};
+
+                console.log('editing display');
+                makeRequest(params);
+             },
+        setDelete: function() {
+                var url = $('#inp_url').val();
+                var req = 'del-xml-cache';
+                console.log('deleting cache');
+                var params = {"req": req,
+                                "url": url};
+
+                console.log('editing cache');
+                makeRequest(params);
+             },
         displayXML: function(result, params) {
             var display = $('#display_tb');
             var items = '';
@@ -66,11 +75,13 @@ var viewer = (function() {
             });
             if(check === 1) {
                 $('#save_display').on('click', viewer.setSave);
-                console.log($('#save_text').text());
+                //$('#delete_display').on('click', viewer.setDelete);
             }
             else {
                 $('#save_display').off('click', viewer.setSave);
+                //$('#delete_display').off('click', viewer.setDelete);
             }
+            $('#delete_display').off('click').on('click', viewer.setDelete);
         },
 
         displayHTML: function(result) {
@@ -97,7 +108,7 @@ var viewer = (function() {
                                 cls = ' odd';
                             }
                         }
-                       items += '<div class="url_wrapper_wrap' + cls + '"><div class="row url_row"><div class="two columns listid">' + m.ID + '</div><div class="ten columns"><a href="' + m.Url + '" target="_blank" class="listurl">' + m.Url + '</a></div></div>' + '<div class="row meta_row"><div class="eight columns"><span class="listtype">' + m.Type + '</span><span class="listmethod">' + m.Method + '</span></div><div class="four columns"><span class="prs"><a href="#" class="item_parse" name="item-parse" value="parse">Parse</a></span><span class="ers"><a href="#ex1" class="item_edit" data-modal>Edit</a></span></div></div></div>';
+                       items += '<div class="url_wrapper_wrap' + cls + '"><div class="row url_row"><div class="two columns listid">' + m.ID + '</div><div class="ten columns"><a href="' + m.Url + '" target="_blank" class="listurl">' + m.Url + '</a></div></div>' + '<div class="row meta_row"><div class="eight columns"><span class="listtype">' + m.Type + '</span><span class="listmethod">' + m.Method + '</span></div><div class="four columns"><span class="prs"><a href="javascript:void(0)" class="item_parse" name="item-parse" value="parse">Parse</a></span><span class="ers"><a href="#ex1" class="item_edit" data-modal>Edit</a></span></div></div></div>';
 
                         count++;
 
@@ -109,6 +120,7 @@ var viewer = (function() {
                 display.html(items);
                 cb1();
                 cb2();
+                $('#delete_display').off('click').on('click', viewer.setDelete);
         }
 
     };

@@ -254,6 +254,13 @@ func items_handler(w http.ResponseWriter, r *http.Request) *appError {
                 log.Println("items_handler, savexml() Error")
                 return &appError{e.Error, e.Message, e.Code}
             }
+        } else if req == "del-xml-cache" {
+            log.Println("method: del-xml-cache")
+            e := delcache_handler(w, jsonMap)
+            if e != nil {
+                log.Println("items_handler, del-xml-cache Error")
+                return &appError{e.Error, e.Message, e.Code}
+            }
         }
         
     return nil

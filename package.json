@@ -9,7 +9,7 @@
     "compress:js": "browserify src/js/app.js | uglifyjs -c > static/js/app.min.js",
     "build:js": "npm run compress:js",
     "compile:js": "browserify src/js/app.js -o static/js/app.min.js",
-    "watch:js": "onchange 'src/js/**/*.js' -- npm run build:js",
+    "watch:js": "onchange 'src/js/**/*.js' -- npm run compile:js",
     "build:css": "node-sass --include-path scss src/scss/style.scss static/css/style.min.css --output-style compressed",
     "watch:css": "onchange 'src/scss/**/*.scss' -- npm run build:css",
     "observe": "npm run watch:js & npm run watch:css"
