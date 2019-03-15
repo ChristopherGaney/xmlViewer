@@ -315,13 +315,12 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
 }  
 
  func savexml_handler(w http.ResponseWriter, r map[string]string) *appError {
-    //var s ReqParam
     jsonMap := r
    
     url_string := jsonMap["url"]
     log.Println(jsonMap)
     log.Println(url_string)
-    //log.Println(reflect.TypeOf(s.Url))
+    
     sqlCheck := `select exists(select 1 from http_cache where url = $1)`
     rows, err := db.Query(sqlCheck, jsonMap["url"])
 
@@ -349,14 +348,11 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
       SET stamp = $2, data = $3
       WHERE  url = $1;`
 
-
-      
         url := ""
 
         if(res == "false") {
-          //st := string(jsonMap['data'])
           log.Println(jsonMap)
-          //log.Println(reflect.TypeOf(jsonMap['data']))
+        
             err = db.QueryRow(sqlStatement, jsonMap["url"],
                                     time.Now().Unix(),
                                     jsonMap["data"]).Scan(&url)
@@ -387,7 +383,6 @@ func list_handler(w http.ResponseWriter, r *http.Request) *appError {
           url = string(count)
         }
 
-       
         msg_map := make(map[string]string)
         msg_map["url"] = url
         

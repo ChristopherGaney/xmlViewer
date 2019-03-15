@@ -49,10 +49,9 @@ type resourceHandler func(http.ResponseWriter, *http.Request) *appError
 
 func (fn resourceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     if e := fn(w, r); e != nil { 
-        log.Println(e.Error)
-        log.Println(e.Message, e.Code)
+        log.Println("resourceHandler outputting error: ", e.Error)
         cM := make(map[string]interface{})
-        cM["message"] = e.Message
+        cM["message"] = e.Error
         cM["code"] = e.Code
         w.Header().Set("Content-Type", "application/json") 
         err := json.NewEncoder(w).Encode(cM) 
@@ -63,8 +62,6 @@ func (fn resourceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
         }
     }
 }
-
-//type items_handler func(http.ResponseWriter, *http.Request) *appError
 
 type templateHandler func(http.ResponseWriter, *http.Request) *appError
 
@@ -196,9 +193,8 @@ func api_handler(w http.ResponseWriter, r *http.Request) *appError {
 
 //func (fn items_handler) ServeHTTP(w http.ResponseWriter, r *http.Request)  *appError {
 func items_handler(w http.ResponseWriter, r *http.Request) *appError {
-    
     jsonMap := map[string]string{}
-    //log.Println(r)
+    
     b, m := ioutil.ReadAll(r.Body)
     log.Println(b)
     defer r.Body.Close()
@@ -209,16 +205,14 @@ func items_handler(w http.ResponseWriter, r *http.Request) *appError {
       } 
      
     m = json.Unmarshal(b, &jsonMap)
-    //log.Println(m)
+
     if m != nil {
         log.Println("items_handler json.Unmarshal Error")
         return &appError{m, "resource not found", 500}
       }
- 
-    //log.Println(jsonMap)
 
     req := jsonMap["req"]
-        log.Println(req)
+        log.Println("items_handler req", req)
         if req == "add" {
             log.Println("method: add")
             e := adder_handler(w, jsonMap)
