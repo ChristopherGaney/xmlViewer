@@ -188,18 +188,21 @@ header {
                 display: table;
             }
              .edit_save,
-             .edit_delete {
+             .edit_delete,
+             .edit_clear {
                float: left;
                padding-left: .1rem;
                 button {
+                        font-size: 10px;
                         margin-bottom: .4rem;
                         padding: 0;
-                        height: 2.4rem;
-                        line-height: 2.4rem;
-                        min-width: 85px;
+                        height: 2rem;
+                        line-height: 2rem;
+                        min-width: 100px;
                     }
              }
-             .edit_delete {
+             .edit_delete,
+             .edit_clear {
                 padding-left: 1.2rem;
              }
          }

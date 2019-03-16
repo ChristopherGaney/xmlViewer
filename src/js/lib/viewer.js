@@ -25,6 +25,11 @@ var viewer = (function() {
 
        return {
         
+         setClear: function() {
+                var el = $('#save_text');
+                console.log('textarea cleared');
+                el.val('');
+             },
         setSave: function() {
                 var stuff = getData();
                 var url = $('#inp_url').val();
@@ -75,11 +80,11 @@ var viewer = (function() {
             });
             if(check === 1) {
                 $('#save_display').on('click', viewer.setSave);
-                //$('#delete_display').on('click', viewer.setDelete);
+                $('#clear_display').on('click', viewer.setClear);
             }
             else {
                 $('#save_display').off('click', viewer.setSave);
-                //$('#delete_display').off('click', viewer.setDelete);
+                $('#clear_display').off('click', viewer.setClear);
             }
             $('#delete_display').off('click').on('click', viewer.setDelete);
         },
