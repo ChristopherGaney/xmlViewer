@@ -23,6 +23,11 @@ type NewsMap struct {
     Location string
 }
 
+type MinMap struct {
+    Pubdate string
+    Location string
+}
+
 type ApiMap struct {
     Title string
     Keyword string
@@ -49,6 +54,10 @@ func newsRoutine(c chan News, Location string){
     c <- n
 }
 
+type Minindex struct {
+  Pubdates []string `xml:"url>lastmod"`
+  Locations []string `xml:"url>loc"`
+}
 
 type Urlindex struct {
 	Titles []string `xml:"url>news>title"`
@@ -191,6 +200,39 @@ func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
     err = json.NewEncoder(w).Encode(news_map)                          
       if err != nil { 
         log.Println("flat_xml_handler json.NewEncoder Error")
+        return &appError{err, "handler error", 500}                                         
+      }
+   
+    return nil
+}
+
+func minimal_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
+    var s Minindex
+    var url = r["url"]
+    log.Println(url)
+
+    resp, err := getXml(url)
+    if err != nil {
+        log.Println("minimal_xml_handler getXml() Error")
+        return &appError{err, "getXml() error", 500}
+      }
+
+  err = xml.Unmarshal([]byte(resp), &s)
+    if err != nil {
+        log.Println("minimal_xml_handler xml.Unmarshal Error")
+        return &appError{err, "Unmarshal() error", 500}
+      }
+    news_map := make(map[int]MinMap)
+
+    for idx, _ := range s.Locations {
+      news_map[idx] = MinMap{s.Pubdates[idx], s.Locations[idx]}
+    }
+
+    w.Header().Set("Content-Type", "application/json")             
+  
+    err = json.NewEncoder(w).Encode(news_map)                          
+      if err != nil { 
+        log.Println("minimal_xml_handler json.NewEncoder Error")
         return &appError{err, "handler error", 500}                                         
       }
    

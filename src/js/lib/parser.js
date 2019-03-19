@@ -278,7 +278,9 @@ var parser = (function() {
 	                		pmethod = "deep_xml";
 	                	} else if(method !== '' && method === "flat-xml") {
 	                		pmethod = "flat_xml";
-	                	} else {
+	                	} else if(method !== '' && method === "minimal-xml") {
+                            pmethod = "minimal_xml";
+                        } else {
 	                		pmethod = "raw_xml";
 	                	}
 	                }

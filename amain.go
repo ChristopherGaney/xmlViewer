@@ -171,6 +171,13 @@ func api_handler(w http.ResponseWriter, r *http.Request) *appError {
                 log.Println("api_handler, flat_xml() Error")
                 return &appError{e.Error, e.Message, e.Code}
             }
+        } else if method == "minimal-xml" {
+            log.Println("method: minimal-xml method")
+            e := minimal_xml_handler(w, jsonMap)
+            if e != nil {
+                log.Println("api_handler, minimal_xml() Error")
+                return &appError{e.Error, e.Message, e.Code}
+            }
         } else if method == "deep-xml" {
             log.Println("method: deep-xml method")
             e := deep_xml_handler(w, jsonMap)

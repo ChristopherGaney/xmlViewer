@@ -163,7 +163,9 @@ header {
                     }
                     input {
                         width: 30%;
-                        margin-top: .75rem;
+                        margin-left: 1.5rem;
+                        margin-top: .5rem;
+                        margin-bottom: .5rem;
                     }
                 }
             }
@@ -211,6 +213,12 @@ header {
             padding: 1.2rem 2.5rem 2.5rem 2.5rem;
             background: #fff;
             min-height: 500px;
+            a {
+                word-wrap: break-word;
+            }
+            a.small_txt {
+                font-size: 10px;
+            }
             .dataTables_wrapper {
                 .dataTables_length {
                     label {
@@ -267,6 +275,7 @@ header {
                 a {
                     color: #444;//#757E82;
                     text-decoration: none;
+
                     &:hover {
                         color: #9CA7AB;
                     }
