@@ -7,7 +7,8 @@ import (
     "encoding/json"
     "log"
    //"strconv"
-    //"reflect"
+    "reflect"
+    "github.com/clbanning/mxj"
     "github.com/lib/pq"
     "path/filepath"
     "time"
@@ -84,7 +85,7 @@ func getXml(u string) (string, error) {
             return "", err
           }
         }
-    log.Println(res)
+    //log.Println(res)
 
    sqlStatement := `
         DELETE FROM http_cache
@@ -108,17 +109,17 @@ func getXml(u string) (string, error) {
                 }
               }
               
-              log.Println(t)
+              //log.Println(t)
               tm := time.Unix(int64(t), 0)
               
               t_now := time.Now()
              
               diff := t_now.Sub(tm)
               mins := int(diff.Minutes())
-              log.Println("Lifespan is %d", mins)
+              //log.Println("Lifespan is %d", mins)
               
               if(mins < 720) {
-                log.Println("less than 720")
+                //log.Println("less than 720")
                 rows, err = db.Query("SELECT data FROM http_cache WHERE url = $1", u)
                   if err, ok := err.(*pq.Error); ok {
                       log.Println("getXml, db.Query(SELECT data http_cache error:", err.Code.Name())
@@ -173,7 +174,67 @@ func getXml(u string) (string, error) {
     return resp, err
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////
+
+
 func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
+    //var s Urlindex
+    var url = r["url"]
+    log.Println("url: ", url)
+
+    resp, err := getXml(url)
+    if err != nil {
+        log.Println("flat_xml_handler getXml() Error")
+        return &appError{err, "getXml() error", 500}
+      }
+
+      mv, err := mxj.NewMapXml([]byte(resp))
+      name := mv["urlset"]
+      //art := mv.LeafValues()
+      //m, _ := mxj.NewMapXml([]byte(s))
+      //mm := m["myStruct"].(map[string]interface{})
+      //myStruct.Name = mm["name"].(string)
+     // myStruct.Meta = mm["meta"].(map[string]interface{})
+      if err != nil {
+        log.Println("flat_xml_handler NewMapXml() Error")
+        return &appError{err, "getXml() error", 500}
+      }
+      log.Println(reflect.TypeOf(mv))
+      log.Println(mv)
+      log.Println(name)
+      log.Println("length is: ", len(mv))
+
+  /*err = xml.Unmarshal([]byte(resp), &s)
+    if err != nil {
+        log.Println("flat_xml_handler xml.Unmarshal Error")
+        return &appError{err, "Unmarshal() error", 500}
+      }
+    news_map := make(map[int]ApiMap)
+
+    for idx, _ := range s.Locations {
+      news_map[idx] = ApiMap{s.Titles[idx], s.Keywords[idx], s.Locations[idx]}
+    }*/
+
+    news_map := make(map[string]string)
+    news_map["greeting"] = "Testing anonymous parsing"
+    news_map["url"] = url
+    w.Header().Set("Content-Type", "application/json")             
+  
+    err = json.NewEncoder(w).Encode(news_map)                          
+      if err != nil { 
+        log.Println("flat_xml_handler json.NewEncoder Error")
+        return &appError{err, "handler error", 500}                                         
+      }
+   
+    return nil
+}
+
+
+/////////////////////////////////////////////////////////////////////////
+
+
+/*func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
     var s Urlindex
     var url = r["url"]
     log.Println(url)
@@ -204,7 +265,7 @@ func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
       }
    
     return nil
-}
+}*/
 
 func minimal_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
     var s Minindex
