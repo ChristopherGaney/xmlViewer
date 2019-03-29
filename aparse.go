@@ -7,8 +7,8 @@ import (
     "encoding/json"
     "log"
    //"strconv"
-    "reflect"
-    "github.com/clbanning/mxj"
+   // "reflect"
+    //"github.com/clbanning/mxj"
     "github.com/lib/pq"
     "path/filepath"
     "time"
@@ -24,6 +24,11 @@ type NewsMap struct {
     Location string
 }
 
+type CnnMap struct {
+  Title string
+  Pubdate string
+  Location string
+}
 type MinMap struct {
     Pubdate string
     Location string
@@ -53,6 +58,12 @@ func newsRoutine(c chan News, Location string){
     xml.Unmarshal(bytes, &n)
     resp.Body.Close()
     c <- n
+}
+
+type Cnnindex struct {
+  Titles []string `xml:"url>news>title"`
+  Pubdates []string `xml:"url>news>publication_date"`
+  Locations []string `xml:"url>loc"`
 }
 
 type Minindex struct {
@@ -178,7 +189,7 @@ func getXml(u string) (string, error) {
 //////////////////////////////////////////////////////////////////////////////////
 
 
-func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
+/*func flat_xml_handler_new(w http.ResponseWriter, r map[string]string) *appError {
     //var s Urlindex
     var url = r["url"]
     log.Println("url: ", url)
@@ -188,6 +199,8 @@ func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
         log.Println("flat_xml_handler getXml() Error")
         return &appError{err, "getXml() error", 500}
       }
+
+      m := f.(map[string]interface{})
 
       mv, err := mxj.NewMapXml([]byte(resp))
       name := mv["urlset"]
@@ -216,7 +229,7 @@ func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
       news_map[idx] = ApiMap{s.Titles[idx], s.Keywords[idx], s.Locations[idx]}
     }*/
 
-    news_map := make(map[string]string)
+   /* news_map := make(map[string]string)
     news_map["greeting"] = "Testing anonymous parsing"
     news_map["url"] = url
     w.Header().Set("Content-Type", "application/json")             
@@ -228,13 +241,13 @@ func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
       }
    
     return nil
-}
+}*/
 
 
 /////////////////////////////////////////////////////////////////////////
 
 
-/*func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
+func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
     var s Urlindex
     var url = r["url"]
     log.Println(url)
@@ -265,7 +278,7 @@ func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
       }
    
     return nil
-}*/
+}
 
 func minimal_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
     var s Minindex
@@ -294,6 +307,40 @@ func minimal_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
     err = json.NewEncoder(w).Encode(news_map)                          
       if err != nil { 
         log.Println("minimal_xml_handler json.NewEncoder Error")
+        return &appError{err, "handler error", 500}                                         
+      }
+   
+    return nil
+}
+
+func cnn_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
+    var s Cnnindex
+    var url = r["url"]
+    log.Println(url)
+
+    resp, err := getXml(url)
+    if err != nil {
+        log.Println("cnn_xml_handler getXml() Error")
+        return &appError{err, "getXml() error", 500}
+      }
+  
+  err = xml.Unmarshal([]byte(resp), &s)
+    if err != nil {
+        log.Println("cnn_xml_handler xml.Unmarshal Error")
+        return &appError{err, "Unmarshal() error", 500}
+      }
+    news_map := make(map[int]CnnMap)
+    log.Println("news_map cometh")
+    log.Println(news_map);
+    for idx, _ := range s.Locations {
+      news_map[idx] = CnnMap{s.Titles[idx], s.Pubdates[idx], s.Locations[idx]}
+    }
+
+    w.Header().Set("Content-Type", "application/json")             
+  
+    err = json.NewEncoder(w).Encode(news_map)                          
+      if err != nil { 
+        log.Println("cnn_xml_handler json.NewEncoder Error")
         return &appError{err, "handler error", 500}                                         
       }
    

@@ -280,6 +280,8 @@ var parser = (function() {
 	                		pmethod = "flat_xml";
 	                	} else if(method !== '' && method === "minimal-xml") {
                             pmethod = "minimal_xml";
+                        } else if(method !== '' && method === "cnn-xml") {
+                            pmethod = "cnn_xml";
                         } else {
 	                		pmethod = "raw_xml";
 	                	}

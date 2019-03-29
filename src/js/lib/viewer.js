@@ -79,6 +79,17 @@ var viewer = (function() {
                 items += '</tbody></table>';
 
             }
+            else if(params.method === "cnn-xml") {
+                items += '<table id="fancytable" class="display"><col width="25%"><col width="75%">' +
+                        '<thead><tr><th>Title</th><th>Location</th></tr></thead><tbody>';
+
+                $.each(result, function(i,v) {
+                        items += '<tr><td>' + v.Title + '</td><td><a class="small_txt" href="' + v.Location + '" target="_blank">' + v.Location + '</a></td></tr>';
+                });
+
+                items += '</tbody></table>';
+
+            }
             else if(params.method === "raw-xml") {
                 
                items += '<textarea id="save_text" style="width: 100%; min-height: 500px;">' + result[0] + '</textarea>';
