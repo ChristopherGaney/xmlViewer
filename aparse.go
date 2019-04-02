@@ -425,7 +425,7 @@ func raw_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
           }
         string_body = resp
     }
-    
+    log.Println(string_body)
     news_map := make(map[int]string)
     news_map[0] = string_body
 	

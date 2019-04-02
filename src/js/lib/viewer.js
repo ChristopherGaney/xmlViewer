@@ -56,6 +56,8 @@ var viewer = (function() {
             var display = $('#display_tb');
             var items = '';
             var check = 0;
+
+            console.log('params method: ' + params.method);
             if(params.method === "flat-xml" || params.method === "deep-xml") {
                 items += '<table id="fancytable" class="display"><col width="35%"><col width="65%">' +
                         '<thead><tr><th>Title</th><th>Keywords</th></tr></thead><tbody>';
@@ -91,7 +93,8 @@ var viewer = (function() {
 
             }
             else if(params.method === "raw-xml") {
-                
+                console.log(result);
+                console.log(result[0]);
                items += '<textarea id="save_text" style="width: 100%; min-height: 500px;">' + result[0] + '</textarea>';
                 check = 1;
             }
