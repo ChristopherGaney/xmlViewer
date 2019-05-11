@@ -6,9 +6,7 @@ import (
     "encoding/xml"
     "encoding/json"
     "log"
-   //"strconv"
    // "reflect"
-    //"github.com/clbanning/mxj"
     "github.com/lib/pq"
     "path/filepath"
     "time"
@@ -20,7 +18,7 @@ type Sitemapindex struct {
 }
 
 type NewsMap struct {
-    Keyword string
+  //  Keyword string
     Location string
 }
 
@@ -34,7 +32,7 @@ type MinMap struct {
     Location string
 }
 
-type ApiMap struct {
+type FlatMap struct {
     Title string
     Keyword string
     Location string
@@ -71,7 +69,7 @@ type Minindex struct {
   Locations []string `xml:"url>loc"`
 }
 
-type Urlindex struct {
+type Flatindex struct {
 	Titles []string `xml:"url>news>title"`
 	Keywords []string `xml:"url>news>keywords"`
 	Locations []string `xml:"url>loc"`
@@ -119,7 +117,6 @@ func getXml(u string) (string, error) {
                       return "", err
                 }
               }
-              
               //log.Println(t)
               tm := time.Unix(int64(t), 0)
               
@@ -186,69 +183,8 @@ func getXml(u string) (string, error) {
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////
-
-
-/*func flat_xml_handler_new(w http.ResponseWriter, r map[string]string) *appError {
-    //var s Urlindex
-    var url = r["url"]
-    log.Println("url: ", url)
-
-    resp, err := getXml(url)
-    if err != nil {
-        log.Println("flat_xml_handler getXml() Error")
-        return &appError{err, "getXml() error", 500}
-      }
-
-      m := f.(map[string]interface{})
-
-      mv, err := mxj.NewMapXml([]byte(resp))
-      name := mv["urlset"]
-      //art := mv.LeafValues()
-      //m, _ := mxj.NewMapXml([]byte(s))
-      //mm := m["myStruct"].(map[string]interface{})
-      //myStruct.Name = mm["name"].(string)
-     // myStruct.Meta = mm["meta"].(map[string]interface{})
-      if err != nil {
-        log.Println("flat_xml_handler NewMapXml() Error")
-        return &appError{err, "getXml() error", 500}
-      }
-      log.Println(reflect.TypeOf(mv))
-      log.Println(mv)
-      log.Println(name)
-      log.Println("length is: ", len(mv))
-
-  /*err = xml.Unmarshal([]byte(resp), &s)
-    if err != nil {
-        log.Println("flat_xml_handler xml.Unmarshal Error")
-        return &appError{err, "Unmarshal() error", 500}
-      }
-    news_map := make(map[int]ApiMap)
-
-    for idx, _ := range s.Locations {
-      news_map[idx] = ApiMap{s.Titles[idx], s.Keywords[idx], s.Locations[idx]}
-    }*/
-
-   /* news_map := make(map[string]string)
-    news_map["greeting"] = "Testing anonymous parsing"
-    news_map["url"] = url
-    w.Header().Set("Content-Type", "application/json")             
-  
-    err = json.NewEncoder(w).Encode(news_map)                          
-      if err != nil { 
-        log.Println("flat_xml_handler json.NewEncoder Error")
-        return &appError{err, "handler error", 500}                                         
-      }
-   
-    return nil
-}*/
-
-
-/////////////////////////////////////////////////////////////////////////
-
-
 func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
-    var s Urlindex
+    var s Flatindex
     var url = r["url"]
     log.Println(url)
 
@@ -263,10 +199,10 @@ func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
         log.Println("flat_xml_handler xml.Unmarshal Error")
         return &appError{err, "Unmarshal() error", 500}
       }
-    news_map := make(map[int]ApiMap)
+    news_map := make(map[int]FlatMap)
 
     for idx, _ := range s.Locations {
-			news_map[idx] = ApiMap{s.Titles[idx], s.Keywords[idx], s.Locations[idx]}
+			news_map[idx] = FlatMap{s.Titles[idx], s.Keywords[idx], s.Locations[idx]}
 		}
 
     w.Header().Set("Content-Type", "application/json")             
@@ -363,11 +299,14 @@ func deep_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
         log.Println("deep_xml_handler ioutil.ReadAll Error")
         return &appError{err, "Unmarshal error", 500}
       }
-    news_map := make(map[int]ApiMap)
+    news_map := make(map[int]NewsMap)
+    for idx, _ := range s.Locations {
+      news_map[idx] = NewsMap{s.Locations[idx]}
+    }
     
-    queue := make(chan News, 30)
+    //queue := make(chan News, 30)
 
-    for _, Location := range s.Locations {
+    /*for _, Location := range s.Locations {
         wg.Add(1)
         go newsRoutine(queue, Location)
     }
@@ -376,9 +315,9 @@ func deep_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
 
     for elem := range queue {
         for idx, _ := range elem.Keywords {
-            news_map[idx] = ApiMap{elem.Titles[idx], elem.Keywords[idx], elem.Locations[idx]}
+            news_map[idx] = FlatMap{elem.Titles[idx], elem.Keywords[idx], elem.Locations[idx]}
         }
-    }
+    }*/
 
     w.Header().Set("Content-Type", "application/json")             
   

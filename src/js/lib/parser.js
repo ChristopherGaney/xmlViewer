@@ -6,18 +6,18 @@ var parser = (function() {
         var params;
 
         var makeRequest = function(u,t,m) {
+            var spin = $('#load_spinner');
              params = {
                 "url": u,
                 "type": t,
                 "method": m
               };
+              spin.fadeIn('slow');
             ajax.sendRequest('/poster', params, function (response) {
                 var res = response.data;
                 console.log('returned from /poster');
-
+                spin.fadeOut('fast');
                 if(params.type === 'xml') {
-                    console.log("result of xml: ");
-                    console.log(res);
                     viewer.displayXML(res, params);
                 }
                 else {
@@ -70,7 +70,7 @@ var parser = (function() {
                 else {
                     tname = 'http_typ';
                 }
-                method = $('#text_inputer').val().trim();//$('input[name=' + tname + ']:checked').val();
+                method = $('input[name=' + tname + ']:checked').val();
                 console.log('method: ' + method);
 
                 if(url !== '' && type !== '' && method !== '') {
@@ -201,10 +201,10 @@ var parser = (function() {
                 else {
                     tname = 'http_typ';
                 }
-                method = $('#text_inputer').val().trim();//$('input[name=' + tname + ']:checked').val();
+                method = $('input[name=' + tname + ']:checked').val();
                 console.log(typeof(name));
                 if(name !== '') {
-                    
+                    console.log("nomshky");
                     $('#i_name').val(name);
                 }
                 $('#i_url').val(url);
@@ -277,15 +277,15 @@ var parser = (function() {
 	                	ptype = "xml_typ";
 	                	if(method !== '' && method === "deep-xml") {
 	                			
-	                		pmethod = "deep-xml";
+	                		pmethod = "deep_xml";
 	                	} else if(method !== '' && method === "flat-xml") {
-	                		pmethod = "flat-xml";
+	                		pmethod = "flat_xml";
 	                	} else if(method !== '' && method === "minimal-xml") {
-                            pmethod = "minimal-xml";
+                            pmethod = "minimal_xml";
                         } else if(method !== '' && method === "cnn-xml") {
-                            pmethod = "cnn-xml";
+                            pmethod = "cnn_xml";
                         } else {
-	                		pmethod = "raw-xml";
+	                		pmethod = "raw_xml";
 	                	}
 	                }
 	                if(type !== "" && type === "http") {
@@ -314,9 +314,11 @@ var parser = (function() {
 		                    });
 		                    
 		                }
+                        console.log(ptype);
+                        console.log(pmethod);
 	                $('#' + ptype).prop("checked", true);
-	                //$('#' + pmethod).prop("checked", true);
-                    $('#text_inputer').val(pmethod);
+	                $('#' + pmethod).prop("checked", true);
+
 	              //$(this).modal();
 	              //return false;
 	            };

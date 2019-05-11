@@ -16,6 +16,8 @@ var parser = (function() {
                 console.log('returned from /poster');
 
                 if(params.type === 'xml') {
+                    console.log("result of xml: ");
+                    console.log(res);
                     viewer.displayXML(res, params);
                 }
                 else {
@@ -68,7 +70,7 @@ var parser = (function() {
                 else {
                     tname = 'http_typ';
                 }
-                method = $('input[name=' + tname + ']:checked').val();
+                method = $('#text_inputer').val().trim();//$('input[name=' + tname + ']:checked').val();
                 console.log('method: ' + method);
 
                 if(url !== '' && type !== '' && method !== '') {
@@ -199,10 +201,10 @@ var parser = (function() {
                 else {
                     tname = 'http_typ';
                 }
-                method = $('input[name=' + tname + ']:checked').val();
+                method = $('#text_inputer').val().trim();//$('input[name=' + tname + ']:checked').val();
                 console.log(typeof(name));
                 if(name !== '') {
-                    console.log("nomshky");
+                    
                     $('#i_name').val(name);
                 }
                 $('#i_url').val(url);
@@ -275,15 +277,15 @@ var parser = (function() {
 	                	ptype = "xml_typ";
 	                	if(method !== '' && method === "deep-xml") {
 	                			
-	                		pmethod = "deep_xml";
+	                		pmethod = "deep-xml";
 	                	} else if(method !== '' && method === "flat-xml") {
-	                		pmethod = "flat_xml";
+	                		pmethod = "flat-xml";
 	                	} else if(method !== '' && method === "minimal-xml") {
-                            pmethod = "minimal_xml";
+                            pmethod = "minimal-xml";
                         } else if(method !== '' && method === "cnn-xml") {
-                            pmethod = "cnn_xml";
+                            pmethod = "cnn-xml";
                         } else {
-	                		pmethod = "raw_xml";
+	                		pmethod = "raw-xml";
 	                	}
 	                }
 	                if(type !== "" && type === "http") {
@@ -313,8 +315,8 @@ var parser = (function() {
 		                    
 		                }
 	                $('#' + ptype).prop("checked", true);
-	                $('#' + pmethod).prop("checked", true);
-
+	                //$('#' + pmethod).prop("checked", true);
+                    $('#text_inputer').val(pmethod);
 	              //$(this).modal();
 	              //return false;
 	            };

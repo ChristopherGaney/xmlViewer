@@ -58,12 +58,24 @@ var viewer = (function() {
             var check = 0;
 
             console.log('params method: ' + params.method);
-            if(params.method === "flat-xml" || params.method === "deep-xml") {
+            if(params.method === "flat-xml") {
                 items += '<table id="fancytable" class="display"><col width="35%"><col width="65%">' +
                         '<thead><tr><th>Title</th><th>Keywords</th></tr></thead><tbody>';
 
                 $.each(result, function(i,v) {
                         items += '<tr><td><a href="' + v.Location + '" target="_blank">' + v.Title + '</a></td><td>' + v.Keyword + '</td></tr>';
+                });
+
+                items += '</tbody></table>';
+
+                
+            }
+            else if(params.method === "deep-xml") {
+                items += '<table id="fancytable" class="display"><col width="100%">' +
+                        '<thead><tr><th>Location</th></tr></thead><tbody>';
+
+                $.each(result, function(i,v) {
+                        items += '<tr><td><a href="' + v.Location + '" target="_blank">' + v.Location + '</a></td></tr>';
                 });
 
                 items += '</tbody></table>';
