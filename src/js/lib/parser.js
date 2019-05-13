@@ -274,19 +274,21 @@ var parser = (function() {
 	                $('#inp_url').val(url);
 	                if(type !== "" && type === "xml") {
 	                	console.log('is xml');
+                        console.log('method: ' + method);
 	                	ptype = "xml_typ";
-	                	if(method !== '' && method === "deep-xml") {
-	                			
-	                		pmethod = "deep_xml";
-	                	} else if(method !== '' && method === "flat-xml") {
+	                	if(method == '') {	
+	                		pmethod = "raw_xml";
+	                	} else {
+                            pmethod = method.split('-').join('_');
+                            console.log('pmethod: ' + pmethod);
+                        }/*if(method !== '' && method === "flat-xml") {
 	                		pmethod = "flat_xml";
 	                	} else if(method !== '' && method === "minimal-xml") {
                             pmethod = "minimal_xml";
                         } else if(method !== '' && method === "cnn-xml") {
                             pmethod = "cnn_xml";
-                        } else {
-	                		pmethod = "raw_xml";
-	                	}
+                        } else*/ 
+	                		
 	                }
 	                if(type !== "" && type === "http") {
 	                	console.log('is http');

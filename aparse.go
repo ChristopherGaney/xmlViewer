@@ -16,26 +16,33 @@ import (
 type Sitemapindex struct {
     Locations []string `xml:"sitemap>loc"`
 }
-
-type NewsMap struct {
+type DeepMap struct {
   //  Keyword string
     Location string
 }
 
 type CnnMap struct {
   Title string
-  Pubdate string
   Location string
+  Pubdate string
 }
 type MinMap struct {
-    Pubdate string
     Location string
+    Pubdate string
+    Changefreq string
 }
-
+type PolitMap struct {
+    Title string
+    Location string
+    Pubdate string
+    Changefreq string
+}
 type FlatMap struct {
     Title string
-    Keyword string
     Location string
+    Pubdate string
+    Changefreq string
+    Keyword string
 }
 
 type RawMap struct {
@@ -44,8 +51,8 @@ type RawMap struct {
 
 type News struct {
     Titles []string `xml:"url>news>title"`
-    Keywords []string `xml:"url>news>keywords"`
     Locations []string `xml:"url>loc"`
+    Keywords []string `xml:"url>news>keywords"`
 }
 
 func newsRoutine(c chan News, Location string){
@@ -60,19 +67,28 @@ func newsRoutine(c chan News, Location string){
 
 type Cnnindex struct {
   Titles []string `xml:"url>news>title"`
-  Pubdates []string `xml:"url>news>publication_date"`
   Locations []string `xml:"url>loc"`
+  Pubdates []string `xml:"url>news>publication_date"`
 }
 
 type Minindex struct {
-  Pubdates []string `xml:"url>lastmod"`
   Locations []string `xml:"url>loc"`
+  Pubdates []string `xml:"url>lastmod"`
+  Changefreqs []string `xml:"url>changefreq"`
 }
-
+type Politindex struct {
+  Titles []string `xml:"url>news>title"`
+  Locations []string `xml:"url>loc"`
+  Pubdates []string `xml:"url>lastmod"`
+  Changefreqs []string `xml:"url>changefreq"`
+}
 type Flatindex struct {
 	Titles []string `xml:"url>news>title"`
+  Locations []string `xml:"url>loc"`
+  Pubdates []string `xml:"url>news>publication_date"`
+  Changefreqs []string `xml:"url>changefreq"`
 	Keywords []string `xml:"url>news>keywords"`
-	Locations []string `xml:"url>loc"`
+	
 }
 
 func getXml(u string) (string, error) {
@@ -202,7 +218,7 @@ func flat_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
     news_map := make(map[int]FlatMap)
 
     for idx, _ := range s.Locations {
-			news_map[idx] = FlatMap{s.Titles[idx], s.Keywords[idx], s.Locations[idx]}
+			news_map[idx] = FlatMap{s.Titles[idx], s.Locations[idx], s.Pubdates[idx], s.Changefreqs[idx], s.Keywords[idx]}
 		}
 
     w.Header().Set("Content-Type", "application/json")             
@@ -235,7 +251,44 @@ func minimal_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
     news_map := make(map[int]MinMap)
 
     for idx, _ := range s.Locations {
-      news_map[idx] = MinMap{s.Pubdates[idx], s.Locations[idx]}
+      news_map[idx] = MinMap{s.Locations[idx], s.Pubdates[idx], s.Changefreqs[idx]}
+    }
+
+    w.Header().Set("Content-Type", "application/json")             
+  
+    err = json.NewEncoder(w).Encode(news_map)                          
+      if err != nil { 
+        log.Println("minimal_xml_handler json.NewEncoder Error")
+        return &appError{err, "handler error", 500}                                         
+      }
+   
+    return nil
+}
+func politico_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
+    var s Politindex
+    var url = r["url"]
+    log.Println(url)
+
+    resp, err := getXml(url)
+    if err != nil {
+        log.Println("minimal_xml_handler getXml() Error")
+        return &appError{err, "getXml() error", 500}
+      }
+
+  err = xml.Unmarshal([]byte(resp), &s)
+    if err != nil {
+        log.Println("minimal_xml_handler xml.Unmarshal Error")
+        return &appError{err, "Unmarshal() error", 500}
+      }
+ /* b := []byte(resp)
+    reader := bytes.NewReader(b)
+  decoder := xml.NewDecoder(reader)
+  decoder.CharsetReader = charset.NewReaderLabel
+  err = decoder.Decode(&s)*/
+    news_map := make(map[int]PolitMap)
+
+    for idx, _ := range s.Locations {
+      news_map[idx] = PolitMap{s.Titles[idx], s.Locations[idx], s.Pubdates[idx], s.Changefreqs[idx]}
     }
 
     w.Header().Set("Content-Type", "application/json")             
@@ -269,7 +322,7 @@ func cnn_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
     log.Println("news_map cometh")
     log.Println(news_map);
     for idx, _ := range s.Locations {
-      news_map[idx] = CnnMap{s.Titles[idx], s.Pubdates[idx], s.Locations[idx]}
+      news_map[idx] = CnnMap{s.Titles[idx], s.Locations[idx], s.Pubdates[idx]}
     }
 
     w.Header().Set("Content-Type", "application/json")             
@@ -299,9 +352,9 @@ func deep_xml_handler(w http.ResponseWriter, r map[string]string) *appError {
         log.Println("deep_xml_handler ioutil.ReadAll Error")
         return &appError{err, "Unmarshal error", 500}
       }
-    news_map := make(map[int]NewsMap)
+    news_map := make(map[int]DeepMap)
     for idx, _ := range s.Locations {
-      news_map[idx] = NewsMap{s.Locations[idx]}
+      news_map[idx] = DeepMap{s.Locations[idx]}
     }
     
     //queue := make(chan News, 30)

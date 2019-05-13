@@ -56,21 +56,7 @@ var viewer = (function() {
             var display = $('#display_tb');
             var items = '';
             var check = 0;
-
-            console.log('params method: ' + params.method);
-            if(params.method === "flat-xml") {
-                items += '<table id="fancytable" class="display"><col width="35%"><col width="65%">' +
-                        '<thead><tr><th>Title</th><th>Keywords</th></tr></thead><tbody>';
-
-                $.each(result, function(i,v) {
-                        items += '<tr><td><a href="' + v.Location + '" target="_blank">' + v.Title + '</a></td><td>' + v.Keyword + '</td></tr>';
-                });
-
-                items += '</tbody></table>';
-
-                
-            }
-            else if(params.method === "deep-xml") {
+            if(params.method === "deep-xml") {
                 items += '<table id="fancytable" class="display"><col width="100%">' +
                         '<thead><tr><th>Location</th></tr></thead><tbody>';
 
@@ -82,34 +68,53 @@ var viewer = (function() {
 
                 
             }
-            else if(params.method === "minimal-xml") {
-                items += '<table id="fancytable" class="display"><col width="25%"><col width="75%">' +
-                        '<thead><tr><th>Publish date</th><th>Location</th></tr></thead><tbody>';
-
-                $.each(result, function(i,v) {
-                        items += '<tr><td>' + v.Pubdate + '</td><td><a class="small_txt" href="' + v.Location + '" target="_blank">' + v.Location + '</a></td></tr>';
-                });
-
-                items += '</tbody></table>';
-
-            }
-            else if(params.method === "cnn-xml") {
-                items += '<table id="fancytable" class="display"><col width="25%"><col width="75%">' +
-                        '<thead><tr><th>Title</th><th>Location</th></tr></thead><tbody>';
-
-                $.each(result, function(i,v) {
-                        items += '<tr><td>' + v.Title + '</td><td><a class="small_txt" href="' + v.Location + '" target="_blank">' + v.Location + '</a></td></tr>';
-                });
-
-                items += '</tbody></table>';
-
-            }
             else if(params.method === "raw-xml") {
                 console.log(result);
                 console.log(result[0]);
                items += '<textarea id="save_text" style="width: 100%; min-height: 500px;">' + result[0] + '</textarea>';
                 check = 1;
             }
+            else if(result[0].Keyword) {
+                console.log('Keyword Cometh: ' + result[0].Keyword);
+
+                     items += '<table id="fancytable" class="display"><col width="35%"><col width="65%">' +
+                        '<thead><tr><th>Title</th><th>Keywords</th></tr></thead><tbody>';
+
+                    $.each(result, function(i,v) {
+                        var t,ht;
+                        if(v.Title) {
+                            ht = v.Title.replace("<!--// <![CDATA[", "");
+                            ht = ht.replace("// ]]> -->", "");
+                            t = ht;
+                        }
+                        else {
+                            t = v.Location;
+                        }
+                        items += '<tr><td><a href="' + v.Location + '" target="_blank">' + t + '</a></td><td>' + v.Keyword + '</td></tr>';
+                    });
+
+                    items += '</tbody></table>';
+            }
+            else {
+                items += '<table id="fancytable" class="display"><col width="25%"><col width="75%">' +
+                        '<thead><tr><th>Publish date</th><th>Location</th></tr></thead><tbody>';
+                
+                $.each(result, function(i,v) {
+                    var t;
+                    if(v.Title) {
+                            console.log('has tiltel');
+                            t = v.Title;
+                            t = t.replace("<![CDATA[", "").replace("]]>", "");
+                        }
+                     else {
+                         t = "Location";
+                    }
+                    items += '<tr><td>' + t + '</td><td><a class="small_txt" href="' + v.Location + '" target="_blank">' + v.Location + '</a></td></tr>';
+                });
+
+                items += '</tbody></table>';
+            }
+           
             display.html(items);
 
             $('#fancytable').DataTable({

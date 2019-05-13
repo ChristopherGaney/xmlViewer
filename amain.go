@@ -178,6 +178,13 @@ func api_handler(w http.ResponseWriter, r *http.Request) *appError {
                 log.Println("api_handler, minimal_xml() Error")
                 return &appError{e.Error, e.Message, e.Code}
             }
+        } else if method == "pol-xml" {
+            log.Println("method: politico-xml method")
+            e := politico_xml_handler(w, jsonMap)
+            if e != nil {
+                log.Println("api_handler, politico_xml() Error")
+                return &appError{e.Error, e.Message, e.Code}
+            }
         } else if method == "cnn-xml" {
             log.Println("method: cnn-xml method")
             e := cnn_xml_handler(w, jsonMap)
